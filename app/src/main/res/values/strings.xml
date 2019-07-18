@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Project1</string>
+
+
+    <string-array name="gender_list">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+
+    <string name="see_your_cv"><u>See your current resume</u></string>
+
+
+</resources>
