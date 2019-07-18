@@ -150,6 +150,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="right"
                                         app:sb_checked="true"
+                                        app:sb_checked_color="@color/color2"
                                         app:sb_checkline_width="0dp" />
 
                                 </LinearLayout>
