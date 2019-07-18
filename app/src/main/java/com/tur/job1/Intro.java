@@ -24,6 +24,7 @@ public class Intro extends AppCompatActivity {
     private boolean isConnectedToNet;
 
     private int testVal1;
+    private int testVal2;
 
 
     @Override
