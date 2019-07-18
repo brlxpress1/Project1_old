@@ -23,6 +23,8 @@ public class Intro extends AppCompatActivity {
     private Button find_job;
     private boolean isConnectedToNet;
 
+    private int testVal1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
