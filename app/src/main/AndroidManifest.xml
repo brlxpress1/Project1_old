@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -27,6 +31,16 @@
         <activity android:name=".job_seeker.Job_Seeker_Verify_2" android:theme="@style/Theme2" android:label="Verify Number" android:screenOrientation="portrait"></activity>
       <activity android:name=".job_seeker.Job_Seeker_CV_Upload" android:theme="@style/Theme2" android:label="Upload Resume" android:screenOrientation="portrait"></activity>
         <activity android:name=".job_seeker.Job_Seeker_Dashboard" android:theme="@style/RadioButton1" android:label="Welcome" android:screenOrientation="portrait"></activity>
+
+
+        <activity android:name=".others.ImagePickerActivity" />
+        <!-- uCrop cropping activity -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+
 
 
 

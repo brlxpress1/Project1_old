@@ -1,7 +1,8 @@
-package com.tur.job1.job_seeker;
+package com.tur.job1.others;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,15 +10,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.karumi.dexter.Dexter;
@@ -25,59 +23,56 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.tur.job1.Intro;
 import com.tur.job1.R;
-import com.tur.job1.others.Connectivity;
-import com.tur.job1.others.ImagePickerActivity;
-import com.tur.job1.others.Profile_Image_Changer;
 
 import java.io.IOException;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import es.dmoral.toasty.Toasty;
 
-public class Job_Seeker_Dashboard extends AppCompatActivity {
+public class Profile_Image_Changer {
 
-    private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
-
-    public String TAG = "Job_Seeker_Dashboard";
+    public String TAG = "Profile_Image_Changer";
     public static final int REQUEST_IMAGE = 100;
 
-    private TextView changeProfile;
-    private CircleImageView profileImage;
+    //Context ct;
+    Activity mainActivity;
+    CircleImageView imgV;
 
+    public Profile_Image_Changer(Context ct, Activity mainActivity,CircleImageView imgV){
 
+        //ct = this.ct;
+        mainActivity = this.mainActivity;
+        imgV = this.imgV;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_job_seeker_dashboard);
-
-
-        changeProfile = (TextView)findViewById(R.id.change_profile);
-        profileImage = (CircleImageView)findViewById(R.id.profile_image);
-
-        ImagePickerActivity.clearCache(this);
-
-        changeProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                changeProfile.startAnimation(buttonClick);
-
-               //new Profile_Image_Changer(Job_Seeker_Dashboard.this,Job_Seeker_Dashboard.this,profileImage);
-                onProfileImageClick();
-            }
-        });
-
-
-       
+        loadProfileDefault();
     }
 
-    //-- Image picker tasks
+    public void loadProfile(String url) {
+        Log.d(TAG, "Image cache path: " + url);
+
+        Glide.with(mainActivity)
+                .load(url)
+                .centerCrop()
+                .placeholder(R.drawable.default_avatar)
+                .into(imgV);
+        //imgProfile.setColorFilter(ContextCompat.getColor(ct, android.R.color.transparent));
+    }
+
+    private void loadProfileDefault() {
+        Glide.with(mainActivity)
+                .load(R.drawable.default_avatar)
+                .centerCrop()
+                .placeholder(R.drawable.default_avatar)
+                .into(imgV);
+        //imgProfile.setColorFilter(ContextCompat.getColor(this, R.color.profile_default_tint));
+
+        onProfileImageClick();
+    }
+
+
     void onProfileImageClick() {
-        Dexter.withActivity(this)
+        Dexter.withActivity(mainActivity)
                 .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
@@ -99,7 +94,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
     }
 
     private void showImagePickerOptions() {
-        ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
+        ImagePickerActivity.showImagePickerOptions(mainActivity, new ImagePickerActivity.PickerOptionListener() {
             @Override
             public void onTakeCameraSelected() {
                 launchCameraIntent();
@@ -113,7 +108,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
     }
 
     private void launchCameraIntent() {
-        Intent intent = new Intent(this, ImagePickerActivity.class);
+        Intent intent = new Intent(mainActivity, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
 
         // setting aspect ratio
@@ -126,19 +121,20 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
 
-        startActivityForResult(intent, REQUEST_IMAGE);
+        mainActivity.startActivityForResult(intent, REQUEST_IMAGE);
     }
 
     private void launchGalleryIntent() {
-        Intent intent = new Intent(this, ImagePickerActivity.class);
+        Intent intent = new Intent(mainActivity, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_GALLERY_IMAGE);
 
         // setting aspect ratio
         intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-        startActivityForResult(intent, REQUEST_IMAGE);
+        mainActivity.startActivityForResult(intent, REQUEST_IMAGE);
     }
+
 
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_IMAGE) {
@@ -146,7 +142,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
                 Uri uri = data.getParcelableExtra("path");
                 try {
                     // You can update this bitmap to your server
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(mainActivity.getContentResolver(), uri);
 
                     // loading profile image from local cache
                     loadProfile(uri.toString());
@@ -163,14 +159,14 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
      * NOTE: Keep proper title and message depending on your app
      */
     private void showSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dialog_permission_title));
-        builder.setMessage(getString(R.string.dialog_permission_message));
-        builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+        builder.setTitle(mainActivity.getString(R.string.dialog_permission_title));
+        builder.setMessage(mainActivity.getString(R.string.dialog_permission_message));
+        builder.setPositiveButton(mainActivity.getString(R.string.go_to_settings), (dialog, which) -> {
             dialog.cancel();
             openSettings();
         });
-        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton(mainActivity.getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
         builder.show();
 
     }
@@ -178,20 +174,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
     // navigating user to app settings
     private void openSettings() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        Uri uri = Uri.fromParts("package", mainActivity.getPackageName(), null);
         intent.setData(uri);
-        startActivityForResult(intent, 101);
+        mainActivity.startActivityForResult(intent, 101);
     }
-
-    public void loadProfile(String url) {
-        Log.d(TAG, "Image cache path: " + url);
-
-        Glide.with(this)
-                .load(url)
-                .centerCrop()
-                .placeholder(R.drawable.default_avatar)
-                .into(profileImage);
-        //imgProfile.setColorFilter(ContextCompat.getColor(ct, android.R.color.transparent));
-    }
-    //------------------
 }
