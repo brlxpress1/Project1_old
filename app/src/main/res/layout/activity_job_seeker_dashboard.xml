@@ -195,16 +195,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/namebox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
-                                            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
 
                                             android:clickable="false"
-                                            android:focusable="false"
+                                            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
 
                                             android:ems="10"
+                                            android:focusable="false"
                                             android:hint="Rajeeb Ahmed"
                                             android:inputType="textPersonName"
                                             android:textColor="#000000"
@@ -219,6 +220,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/name_input"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"
@@ -341,16 +343,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/emailbox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+                                            android:clickable="false"
+
                                             android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@."
                                             android:ems="10"
 
-                                            android:clickable="false"
                                             android:focusable="false"
-
                                             android:hint="rajeeb@xxxx.com"
                                             android:inputType="textEmailAddress"
                                             android:textColor="#000000"
@@ -365,6 +368,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/email_input"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"
@@ -412,22 +416,25 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/datebox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+                                            android:clickable="false"
+
                                             android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                             android:ems="10"
 
-                                            android:clickable="false"
+
                                             android:focusable="false"
-
-
                                             android:hint="dd / mm / yyyy"
                                             android:inputType="textPersonName"
                                             android:textColor="#000000"
                                             android:textSize="16sp"
                                             android:theme="@style/EditTextTheme1" />
+
+
                                     </LinearLayout>
 
                                     <LinearLayout
@@ -437,6 +444,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/date_input"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"

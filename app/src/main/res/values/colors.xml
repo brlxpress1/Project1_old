@@ -9,4 +9,7 @@
     <color name="color3">#00a7a4</color>
     <color name="color4">#40dcd9</color>
     <color name="borderash">#6f7072</color>
+
+    <color name="delete_message_bg">#f2f2f2</color>
+    <color name="delete_message_text">#b8b8b8</color>
 </resources>

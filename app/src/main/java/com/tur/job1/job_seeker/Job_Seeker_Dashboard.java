@@ -2,6 +2,8 @@ package com.tur.job1.job_seeker;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,12 +11,17 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,10 +35,12 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.tur.job1.Intro;
 import com.tur.job1.R;
 import com.tur.job1.others.Connectivity;
+import com.tur.job1.others.Dialogue_Helper;
 import com.tur.job1.others.ImagePickerActivity;
 import com.tur.job1.others.Profile_Image_Changer;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -49,6 +58,19 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
 
 
 
+    private ImageView nameInputOpener;
+    public EditText nameBox;
+
+    private ImageView emailInputOpener;
+    public EditText emailBox;
+
+    private ImageView datelInputOpener;
+    private EditText dateBox;
+
+    DatePicker picker;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,21 +80,105 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
         changeProfile = (TextView)findViewById(R.id.change_profile);
         profileImage = (CircleImageView)findViewById(R.id.profile_image);
 
+        nameInputOpener = (ImageView)findViewById(R.id.name_input);
+        nameBox = (EditText)findViewById(R.id.namebox);
+
+        emailInputOpener = (ImageView)findViewById(R.id.email_input);
+        emailBox = (EditText)findViewById(R.id.emailbox);
+
+        datelInputOpener = (ImageView)findViewById(R.id.date_input);
+        dateBox = (EditText)findViewById(R.id.datebox);
+
+
         ImagePickerActivity.clearCache(this);
 
+        //--
         changeProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 changeProfile.startAnimation(buttonClick);
 
-               //new Profile_Image_Changer(Job_Seeker_Dashboard.this,Job_Seeker_Dashboard.this,profileImage);
+                //new Profile_Image_Changer(Job_Seeker_Dashboard.this,Job_Seeker_Dashboard.this,profileImage);
                 onProfileImageClick();
             }
         });
 
 
-       
+
+        nameInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                openNameInput();
+
+            }
+        });
+
+        emailInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                openEmailInput();
+
+            }
+        });
+
+        datelInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+
+            }
+        });
+
+        //----------------------
+        nameBox.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                //Toast.makeText(getApplicationContext(),"before text change",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // Toast.makeText(getApplicationContext(),"after text change",Toast.LENGTH_LONG).show();
+                setName();
+            }
+        });
+
+        emailBox.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                //Toast.makeText(getApplicationContext(),"before text change",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // Toast.makeText(getApplicationContext(),"after text change",Toast.LENGTH_LONG).show();
+                setEmail();
+            }
+        });
+
+
+        //-------------
+
+
+
+
+
     }
 
     //-- Image picker tasks
@@ -193,5 +299,50 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
                 .into(profileImage);
         //imgProfile.setColorFilter(ContextCompat.getColor(ct, android.R.color.transparent));
     }
+
     //------------------
+
+    //--
+    public void openNameInput(){
+
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForName(this,nameBox);
+    }
+
+    public void setName(){
+
+        //nameBox.setText(name);
+        Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the name!", Toast.LENGTH_LONG, true).show();
+
+    }
+
+    public void openEmailInput(){
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForEmail(this,emailBox);
+    }
+
+    public void setEmail(){
+
+        Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the Email!", Toast.LENGTH_LONG, true).show();
+    }
+
+
+
+    //-----------------
+
+    //-- Date picker
+    public String getCurrentDate(){
+        StringBuilder builder=new StringBuilder();;
+        builder.append((picker.getMonth() + 1)+"/");//month is 0 based
+        builder.append(picker.getDayOfMonth()+"/");
+        builder.append(picker.getYear());
+        return builder.toString();
+    }
+
+
+
+    //--------------------------------------
+
 }
