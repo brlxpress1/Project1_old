@@ -2,6 +2,7 @@ package com.tur.job1.job_seeker;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -28,6 +36,11 @@ import com.hbb20.CountryCodePicker;
 import com.tur.job1.Intro;
 import com.tur.job1.R;
 import com.tur.job1.others.Connectivity;
+import com.tur.job1.others.ConstantsHolder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -360,12 +373,16 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
                             // Toasty.success(JobSeekerSignUp_A.this, "Log in successful!", Toast.LENGTH_LONG, true).show();
 
                             // after successfully verified
-
+/*
                             hideLoadingBar();
                             //Toasty.success(Job_Seeker_Verify_2.this,"Sign up successful with you provided phone number!",Toast.LENGTH_LONG, true).show();
                             Intent openCVwindow = new Intent(Job_Seeker_Verify_2.this,Job_Seeker_CV_Upload.class);
                             startActivity(openCVwindow);
                             finish();
+                            //--
+                            */
+
+                            registerUser(userNameLocal,userPhoneLocal);
 
 
 
@@ -464,6 +481,100 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
 
     //-------------------------
+
+    //-- Registration
+    // this method will store the info of user to  database
+    private void registerUser(String userName, String userPhone) {
+
+
+
+
+
+        JSONObject parameters = new JSONObject();
+        try {
+            parameters.put("fullName", userName);
+            parameters.put("phoneNumbe", userPhone);
+            parameters.put("userType",0);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,parameters.toString());
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, ConstantsHolder.rawServer+ConstantsHolder.signupUser, parameters, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        parseSignUpData(respo);
+
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Verify_2.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+    }
+
+    // if the signup successfull then this method will call and it store the user info in local
+    public void parseSignUpData(String loginData){
+        try {
+            JSONObject jsonObject=new JSONObject(loginData);
+            String userExist =jsonObject.optString("status");
+
+            hideLoadingBar();
+
+            if(userExist.equalsIgnoreCase("200")){
+
+               // Toasty.error(Job_Seeker_Verify_1.this, "This phone number already exists! Try log in now.", Toast.LENGTH_LONG, true).show();
+
+
+                //Toasty.success(Job_Seeker_Verify_2.this,"Sign up successful with you provided phone number!",Toast.LENGTH_LONG, true).show();
+                Intent openCVwindow = new Intent(Job_Seeker_Verify_2.this,Job_Seeker_CV_Upload.class);
+                startActivity(openCVwindow);
+                finish();
+
+
+            }else {
+
+                /*
+                //Toasty.success(Job_Seeker_Verify_1.this, "You can open a new account", Toast.LENGTH_LONG, true).show();
+                Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
+                startActivity(openSecondVerifier);
+                finish();
+                */
+                Toasty.error(Job_Seeker_Verify_2.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+
+            }
+
+        } catch (JSONException e) {
+
+            hideLoadingBar();
+            Toasty.error(Job_Seeker_Verify_2.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    //---------------
 
     @Override
     public void onBackPressed() {

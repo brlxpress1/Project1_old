@@ -28,5 +28,7 @@
     <string name="dialog_permission_message">This app needs permission to use this feature. You can grant them in app settings.</string>
     <string name="go_to_settings">GOTO SETTINGS</string>
 
+    <string name="login_now">Already have an account?\n<font fgcolor='#0000FF'><u>Log in now</u></font></string>
+
 
 </resources>

@@ -2,6 +2,7 @@ package com.tur.job1.job_seeker;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -16,18 +17,36 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hbb20.CountryCodePicker;
 import com.tur.job1.Intro;
 import com.tur.job1.R;
+import com.tur.job1.models.LoginInformationResponse;
+import com.tur.job1.models.PhoneNumberCheck;
 import com.tur.job1.others.Connectivity;
+import com.tur.job1.others.ConstantsHolder;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
@@ -63,6 +82,8 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +97,17 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
         ccp = (CountryCodePicker) findViewById(R.id.ccp);
         countryCodePanel = (LinearLayout)findViewById(R.id.country_code_panel);
+
+        //-- initial calls
+/*
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.setDateFormat("M/d/yy hh:mm a");
+        gson = gsonBuilder.create();
+        */
+
+
+
+        //------------------
 
 
 
@@ -176,9 +208,11 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
                             userPhone = tempPhone;
                             userPurePhone = phone_number.getText().toString().trim();
 
-                            Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
-                            startActivity(openSecondVerifier);
-                            finish();
+                           // Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
+                           // startActivity(openSecondVerifier);
+                           // finish();
+
+                            phone_number_check(removePlusFromPhone(userPhone));
                         }
 
                     }
@@ -247,6 +281,100 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
         dialog.dismiss();
 
     }
+
+    // this method will store the info of user to  database
+    private void phone_number_check(String userPhone) {
+
+
+
+
+
+        JSONObject parameters = new JSONObject();
+        try {
+            parameters.put("userPhoneNumber", userPhone);
+            parameters.put("userType",0);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,parameters.toString());
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, ConstantsHolder.rawServer+ConstantsHolder.phoneCheck, parameters, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        parsePhoneCheckData(respo);
+
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Verify_1.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+    }
+
+    // if the signup successfull then this method will call and it store the user info in local
+    public void parsePhoneCheckData(String loginData){
+        try {
+            JSONObject jsonObject=new JSONObject(loginData);
+            String userExist =jsonObject.optString("userExist");
+
+            if(userExist.equalsIgnoreCase("true")){
+
+                Toasty.error(Job_Seeker_Verify_1.this, "This phone number already exists! Try log in now.", Toast.LENGTH_LONG, true).show();
+
+
+            }else {
+
+                //Toasty.success(Job_Seeker_Verify_1.this, "You can open a new account", Toast.LENGTH_LONG, true).show();
+                Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
+                startActivity(openSecondVerifier);
+                finish();
+
+            }
+
+        } catch (JSONException e) {
+
+            Toasty.error(Job_Seeker_Verify_1.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+            e.printStackTrace();
+        }
+
+    }
+
+
+   private String removePlusFromPhone(String ph){
+
+        String temp = "";
+
+        for(int i=0; i<ph.length(); i++){
+
+            if(i==0){
+
+            }else{
+                temp = temp + ph.charAt(i);
+            }
+        }
+
+        return  temp;
+   }
+
 
 
     @Override

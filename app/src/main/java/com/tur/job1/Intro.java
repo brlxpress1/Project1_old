@@ -58,7 +58,7 @@ public class Intro extends AppCompatActivity {
                 if (Connectivity.isConnected(Intro.this)) {
 
 
-                    Intent openJobSeekerSignUp = new Intent(Intro.this, Job_Seeker_Dashboard.class);
+                    Intent openJobSeekerSignUp = new Intent(Intro.this, Job_Seeker_Verify_1.class);
                     startActivity(openJobSeekerSignUp);
                     finish();
 
