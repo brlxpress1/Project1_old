@@ -46,7 +46,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
 
-public class Job_Seeker_Dashboard extends AppCompatActivity {
+public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
 
@@ -67,7 +67,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
     private ImageView datelInputOpener;
     private EditText dateBox;
 
-    DatePicker picker;
+
 
 
 
@@ -169,6 +169,16 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
             public void afterTextChanged(Editable arg0) {
                 // Toast.makeText(getApplicationContext(),"after text change",Toast.LENGTH_LONG).show();
                 setEmail();
+            }
+        });
+
+
+        datelInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                 showDatePickerDialog();
             }
         });
 
@@ -331,15 +341,24 @@ public class Job_Seeker_Dashboard extends AppCompatActivity {
 
 
     //-----------------
-
-    //-- Date picker
-    public String getCurrentDate(){
-        StringBuilder builder=new StringBuilder();;
-        builder.append((picker.getMonth() + 1)+"/");//month is 0 based
-        builder.append(picker.getDayOfMonth()+"/");
-        builder.append(picker.getYear());
-        return builder.toString();
+    public void showDatePickerDialog(){
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                this,
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
     }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        //String date = "month/day/year: " + month + "/" + dayOfMonth + "/" + year;
+        String date2 = dayOfMonth+"/"+month+"/"+year;
+        dateBox.setText(date2);
+    }
+
+
 
 
 
