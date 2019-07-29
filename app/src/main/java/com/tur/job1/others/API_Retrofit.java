@@ -1,10 +1,6 @@
 package com.tur.job1.others;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.tur.job1.models.UploadFileResponse;
-
-import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -18,7 +14,8 @@ import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Query;
 
-public interface FileUploadService {
+public interface API_Retrofit {
+
     // declare a description explicitly
     // would need to declare
     @Multipart
@@ -39,6 +36,7 @@ public interface FileUploadService {
             @Part MultipartBody.Part file,
             @Query("userId") int userId,
             @Query("fileType") String fileType
-            );
+    );
 }
+
 

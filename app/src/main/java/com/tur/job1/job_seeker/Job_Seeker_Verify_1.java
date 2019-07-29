@@ -2,11 +2,9 @@ package com.tur.job1.job_seeker;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -24,30 +22,15 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.FirebaseTooManyRequestsException;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.hbb20.CountryCodePicker;
 import com.tur.job1.Intro;
 import com.tur.job1.R;
-import com.tur.job1.models.LoginInformationResponse;
-import com.tur.job1.models.PhoneNumberCheck;
 import com.tur.job1.others.Connectivity;
 import com.tur.job1.others.ConstantsHolder;
 
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
 

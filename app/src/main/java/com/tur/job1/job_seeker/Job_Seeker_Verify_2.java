@@ -2,10 +2,9 @@ package com.tur.job1.job_seeker;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -32,13 +31,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.hbb20.CountryCodePicker;
-import com.tur.job1.Intro;
 import com.tur.job1.R;
 import com.tur.job1.others.Connectivity;
 import com.tur.job1.others.ConstantsHolder;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -530,6 +526,7 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         rq.getCache().clear();
         rq.add(jsonObjectRequest);
+
     }
 
     // if the signup successfull then this method will call and it store the user info in local

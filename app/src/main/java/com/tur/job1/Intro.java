@@ -1,7 +1,7 @@
 package com.tur.job1;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -9,8 +9,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.tur.job1.job_seeker.Job_Seeker_CV_Upload;
-import com.tur.job1.job_seeker.Job_Seeker_Dashboard;
-import com.tur.job1.job_seeker.Job_Seeker_Verify_1;
 import com.tur.job1.others.Connectivity;
 
 import es.dmoral.toasty.Toasty;

@@ -1,12 +1,16 @@
 package com.tur.job1.job_seeker;
 
-import android.content.Context;
+import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -15,23 +19,26 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.tur.job1.Intro;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.tur.job1.R;
-import com.tur.job1.others.Connectivity;
+import com.tur.job1.models.UploadFileResponse;
 import com.tur.job1.others.FileUploadService;
 import com.tur.job1.others.ServiceGenerator;
-import com.yalantis.ucrop.util.FileUtils;
 
 
-import org.json.JSONException;
-import org.json.JSONObject;
+
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import es.dmoral.toasty.Toasty;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -57,6 +64,11 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
     private static final int ACTIVITY_CHOOSE_FILE = 3;
     private String masterFilePath = "";
 
+    Intent chooseFile;
+    Intent intent;
+
+    private Dialog dialog;
+
 
 
     @Override
@@ -70,8 +82,7 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
 
         //--
 
-        Intent chooseFile;
-        Intent intent;
+
         chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
         chooseFile.setType("file/*");
         intent = Intent.createChooser(chooseFile, "Choose a file");
@@ -85,8 +96,25 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
 
                 cvChooser.startAnimation(buttonClick);
 
+                if (ContextCompat.checkSelfPermission(Job_Seeker_CV_Upload.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted
 
-                startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+                    askForPermission();
+
+
+                }else{
+
+                    startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+
+                }
+
+
+
+
+
+
+
 
 
             }
@@ -108,7 +136,8 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
 
                 }else {
 
-                    uploadImageWithId(masterFilePath);
+                    showLoadingBarAlert();
+                    uploadImageWithId(masterFilePath,filePath.getText().toString());
 
                 }
 
@@ -244,7 +273,7 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
 
     //--
 
-    private void uploadImageWithId(String filePath) {
+    private void uploadImageWithId(String filePath, String shortFilePath) {
         // create upload service client
         FileUploadService service =
                 ServiceGenerator.createService(FileUploadService.class);
@@ -260,7 +289,7 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
         // create RequestBody instance from file
         RequestBody requestFile =
                 RequestBody.create(
-                        MediaType.parse(getContentResolver().getType(myUri)),
+                        MediaType.parse(shortFilePath),
                         file
                 );
 
@@ -280,7 +309,7 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
                         MultipartBody.FORM, "CV");
                         */
 /*
-        JSONObject parameters = new JSONObject();
+        JsonObject parameters = new JsonObject();
         try {
             parameters.put("userId", 1);
             parameters.put("fileType","CV");
@@ -297,24 +326,94 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
 
         // finally, execute the request
         //Call<ResponseBody> call = service.upload(description, body);
-        Call<ResponseBody> call = service.uploadImageWithId(body,1,"CV");
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<UploadFileResponse> call = service.uploadImageWithId(body,1,"CV");
+        call.enqueue(new Callback<UploadFileResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call,
-                                   Response<ResponseBody> response) {
-                Log.v("112233", response.toString());
-                Toasty.success(Job_Seeker_CV_Upload.this,response.toString(),Toast.LENGTH_LONG, true).show();
+            public void onResponse(Call<UploadFileResponse> call,
+                                   Response<UploadFileResponse> response) {
+                //Log.v("112233", response.body().getFileName()+"-------- "+response.body().getFileDownloadUri());
+                //Toasty.success(Job_Seeker_CV_Upload.this,response.body().toString(),Toast.LENGTH_LONG, true).show();
+                if(response.body().getStatus().toString().equalsIgnoreCase("200")){
+
+                    //--success
+                    Toasty.success(Job_Seeker_CV_Upload.this,"CV uploaded successfully!",Toast.LENGTH_LONG, true).show();
+
+                }else{
+
+                    Toasty.error(Job_Seeker_CV_Upload.this,"User not created yet!",Toast.LENGTH_LONG, true).show();
+                }
+
+                hideLoadingBar();
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<UploadFileResponse> call, Throwable t) {
                 Log.e("112233", t.getMessage());
+                hideLoadingBar();
             }
         });
     }
 
 
     //---------------------------
+
+    //---
+    private void askForPermission(){
+
+        Dexter.withActivity(this)
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+
+                        startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                        //askForPermission();
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+
+                        //askForPermission();
+                        //Log.d(TAG,"----------------------- Read permission is not granted!");
+                    }
+                }).check();
+    }
+
+    private void showLoadingBarAlert(){
+
+
+        dialog = new Dialog(Job_Seeker_CV_Upload.this);
+
+        dialog.setContentView(R.layout.loading);
+
+        dialog.setTitle("Please wait!");
+
+        dialog.setCancelable(false);
+
+
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        dialog.show();
+
+    }
+
+
+
+    private void hideLoadingBar(){
+
+
+
+        dialog.dismiss();
+
+    }
+
+
+
+
+    //-------------------
 }
 
 

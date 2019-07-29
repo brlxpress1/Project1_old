@@ -5,12 +5,14 @@ public class UploadFileResponse {
     private String fileDownloadUri;
     private String fileType;
     private long size;
+    private Integer  status;
 
-    public UploadFileResponse(String fileName, String fileDownloadUri, String fileType, long size) {
+    public UploadFileResponse(String fileName, String fileDownloadUri, String fileType, long size,Integer status) {
         this.fileName = fileName;
         this.fileDownloadUri = fileDownloadUri;
         this.fileType = fileType;
         this.size = size;
+        this.status=status;
     }
 
     public String getFileName() {
@@ -45,6 +47,13 @@ public class UploadFileResponse {
         this.size = size;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
 
-    // Getters and Setters (Omitted for brevity)
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+// Getters and Setters (Omitted for brevity)
 }
