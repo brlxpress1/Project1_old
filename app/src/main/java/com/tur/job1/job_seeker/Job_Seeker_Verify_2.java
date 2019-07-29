@@ -493,7 +493,7 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
         JSONObject parameters = new JSONObject();
         try {
             parameters.put("fullName", userName);
-            parameters.put("phoneNumbe", userPhone);
+            parameters.put("phoneNumber", userPhone);
             parameters.put("userType",0);
 
 

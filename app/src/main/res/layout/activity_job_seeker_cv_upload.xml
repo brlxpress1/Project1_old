@@ -154,7 +154,17 @@
                             android:layout_height="match_parent"
                             android:layout_marginLeft="5dp"
                             android:layout_weight=".4"
-                            android:orientation="vertical" />
+                            android:orientation="vertical" >
+
+                            <TextView
+                                android:id="@+id/textView3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:text="Maximum file size limit : 5MB"
+                                android:textColor="@color/color1"
+                                android:textStyle="italic" />
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
