@@ -2,6 +2,8 @@ package com.tur.job1.job_seeker;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,16 +33,26 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.gson.JsonObject;
 import com.tur.job1.R;
+import com.tur.job1.models.SignUpResponse;
+import com.tur.job1.models.UploadFileResponse;
+import com.tur.job1.others.API_Retrofit;
 import com.tur.job1.others.Connectivity;
 import com.tur.job1.others.ConstantsHolder;
+import com.tur.job1.others.FileUploadService;
+import com.tur.job1.others.ServiceGenerator;
 
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
+
 
 public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
@@ -61,8 +73,7 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
     private String otpID;
     private FirebaseAuth fbAuth;
 
-    private String userNameLocal;
-    private String userPhoneLocal;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,14 +104,16 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
         //-----------------
 
 
-        Job_Seeker_Verify_1 jsv = new  Job_Seeker_Verify_1();
-        userNameLocal = jsv.userName;
-        userPhoneLocal = jsv.userPhone;
+
 
         fbAuth = FirebaseAuth.getInstance();
 
         showLoadingBarAlert();
-        send_otp_by_firebase(userPhoneLocal);
+
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+
+        String userPhone = prefs.getString("userphone", "null");
+        send_otp_by_firebase(userPhone);
 
         resendButton.setText("Did not get the OTP code? "+ Html.fromHtml("<p><u>Resend</u></p>"));
 
@@ -187,6 +200,27 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
     private void send_otp_by_firebase(String number){
 
 
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        //Log.d(TAG,prefs.getString("userid", "null"));
+
+        String userName = prefs.getString("username", "null");
+        String userPhone = prefs.getString("userphone", "null");
+        Log.d(TAG,"From shared preference : "+userName+"--------------"+userPhone);
+
+        if(userName.equalsIgnoreCase("null")){
+
+            // Go to sign up page
+        }else {
+
+            if(userPhone.equalsIgnoreCase("null")){
+
+                // Go to sign up page
+            }else {
+
+
+                registerUser(userName,userPhone);
+
+        /*
 
         verificationCallBack();
 
@@ -207,6 +241,12 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
 
         //--
+        */
+
+            }
+        }
+
+
 
 
 
@@ -378,7 +418,34 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
                             //--
                             */
 
-                            registerUser(userNameLocal,userPhoneLocal);
+                            //--
+                            SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+                            //Log.d(TAG,prefs.getString("userid", "null"));
+
+                            String userName = prefs.getString("username", "null");
+                            String userPhonePure = prefs.getString("userphonepure", "null");
+
+                            if(userName.equalsIgnoreCase("null")){
+
+                                // Go to sign up page
+                            }else {
+
+                                if(userPhonePure.equalsIgnoreCase("null")){
+
+                                    // Go to sign up page
+                                }else {
+
+
+                                    registerUser(userName,userPhonePure);
+
+
+
+                                }
+                            }
+
+                            //---------------------
+
+                           // registerUser(userNameLocal,userPhoneLocal);
 
 
 
@@ -455,7 +522,13 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
 
 
-        String temp = userPhoneLocal;
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        //Log.d(TAG,prefs.getString("userid", "null"));
+
+
+        String userPhone = prefs.getString("userphone", "null");
+
+        String temp = userPhone;
 
 
 
@@ -482,7 +555,76 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
     // this method will store the info of user to  database
     private void registerUser(String userName, String userPhone) {
 
+        //--
+/*
+        API_Retrofit service =
+                ServiceGenerator.createService(API_Retrofit.class);
 
+
+        JSONObject parameters1 = new JSONObject();
+        try {
+            parameters1.put("fullName", "Mahbubur Rahman Turzo");
+            parameters1.put("phoneNumber", "8801834261758");
+            parameters1.put("userType",0);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
+        //Log.d(TAG,parameters1.toString());
+
+        // finally, execute the request
+        //Call<ResponseBody> call = service.upload(description, body);
+        Call<SignUpResponse> call = service.signUpJobSeeker(parameters1);
+        call.enqueue(new Callback<SignUpResponse>() {
+            @Override
+            public void onResponse(Call<SignUpResponse> call,
+                                   Response<SignUpResponse> response) {
+                Log.v(TAG, response.body().getStatus().toString()+" ---------------- "+response.body().getUserId().toString());
+                //Toasty.success(Job_Seeker_CV_Upload.this,response.body().toString(),Toast.LENGTH_LONG, true).show();
+                if(response.body().getStatus() == 200){
+
+
+                    Log.d(TAG,"########## Newly created job seeker id : "+response.body().getUserId().toString());
+
+                    SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+                    editor.putString("userid", response.body().getUserId().toString());
+
+                    editor.apply();
+
+
+                    Intent openCVwindow = new Intent(Job_Seeker_Verify_2.this,Job_Seeker_CV_Upload.class);
+                    startActivity(openCVwindow);
+                    finish();
+
+
+
+
+
+
+                }else{
+
+                    Toasty.error(Job_Seeker_Verify_2.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+
+                }
+
+                //hideLoadingBar();
+            }
+
+            @Override
+            public void onFailure(Call<SignUpResponse> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+                //hideLoadingBar();
+            }
+        });
+
+
+        //-----------------
+
+*/
 
 
 
@@ -513,6 +655,7 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
                     }
                 }, new Response.ErrorListener() {
+
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO: Handle error
@@ -527,6 +670,7 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
         rq.getCache().clear();
         rq.add(jsonObjectRequest);
 
+
     }
 
     // if the signup successfull then this method will call and it store the user info in local
@@ -539,7 +683,10 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
             if(userExist.equalsIgnoreCase("200")){
 
-               // Toasty.error(Job_Seeker_Verify_1.this, "This phone number already exists! Try log in now.", Toast.LENGTH_LONG, true).show();
+                SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+                editor.putString("userid", jsonObject.optString("userId"));
+
+                editor.apply();
 
 
                 //Toasty.success(Job_Seeker_Verify_2.this,"Sign up successful with you provided phone number!",Toast.LENGTH_LONG, true).show();

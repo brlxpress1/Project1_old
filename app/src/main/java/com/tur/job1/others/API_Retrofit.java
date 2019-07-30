@@ -1,6 +1,12 @@
 package com.tur.job1.others;
 
+import com.tur.job1.models.LoginInformationResponse;
+import com.tur.job1.models.PhoneNumberCheck;
+import com.tur.job1.models.SignUpResponse;
 import com.tur.job1.models.UploadFileResponse;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -8,6 +14,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -16,27 +24,21 @@ import retrofit2.http.Query;
 
 public interface API_Retrofit {
 
-    // declare a description explicitly
-    // would need to declare
-    @Multipart
-    @POST("upload")
-    Call<ResponseBody> uploadFile(
-            @Part("description") RequestBody description,
-            @Part MultipartBody.Part file);
 
-    @Multipart
-    @POST("upload")
-    Call<ResponseBody> uploadFileWithPartMap(
-            @PartMap() Map<String, RequestBody> partMap,
-            @Part MultipartBody.Part file);
+    // User exist or not check
+    @Headers("Content-Type: application/json")
+    @POST("UserCheck")
+    Call<PhoneNumberCheck> userExistCheck(
+            @Body JSONObject rawJson);
 
-    @Multipart
-    @POST("uploadFile")
-    Call<UploadFileResponse> uploadImageWithId(
-            @Part MultipartBody.Part file,
-            @Query("userId") int userId,
-            @Query("fileType") String fileType
-    );
+
+    // Registration api for both job seeker & company
+    @Headers("Content-Type: application/json")
+    @POST("UserSignUp")
+    Call<SignUpResponse> signUpJobSeeker(
+            @Body JSONObject rawJson);
+
+
 }
 
 

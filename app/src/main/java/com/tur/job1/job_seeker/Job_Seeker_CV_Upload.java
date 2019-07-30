@@ -3,6 +3,7 @@ package com.tur.job1.job_seeker;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -54,8 +55,7 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
     private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
     private String TAG = "Job_Seeker_CV_Upload";
 
-    private String userNameLocal;
-    private String userPhoneLocal;
+
     private Button uploadButton;
 
     private LinearLayout cvChooser;
@@ -86,6 +86,12 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
         chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
         chooseFile.setType("file/*");
         intent = Intent.createChooser(chooseFile, "Choose a file");
+
+        //--
+
+
+        //SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        //Log.d(TAG,prefs.getString("userid", "null"));
 
 
         //------------
@@ -121,8 +127,9 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
         });
 
 
-        userNameLocal = Job_Seeker_Verify_1.userName;
-        userPhoneLocal = Job_Seeker_Verify_1.userPhone;
+
+
+
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,61 +304,53 @@ public class Job_Seeker_CV_Upload extends AppCompatActivity {
         MultipartBody.Part body =
                 MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-        /*
-        // add another part within the multipart request
-        //String userId = "1";
-        RequestBody userId =
-                RequestBody.create(
-                        MultipartBody.FORM, "1");
-
-        RequestBody fileType =
-                RequestBody.create(
-                        MultipartBody.FORM, "CV");
-                        */
-/*
-        JsonObject parameters = new JsonObject();
-        try {
-            parameters.put("userId", 1);
-            parameters.put("fileType","CV");
 
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        String userID = prefs.getString("userid", "null");
+        if(userID.equalsIgnoreCase(null)){
 
-        Map<String, RequestBody> mapObj = new Gson().fromJson(
-                parameters.toString(), new TypeToken<HashMap<String, RequestBody>>() {}.getType()
-        );
-        */
+            //-- Go to sign up screen
 
-        // finally, execute the request
-        //Call<ResponseBody> call = service.upload(description, body);
-        Call<UploadFileResponse> call = service.uploadImageWithId(body,1,"CV");
-        call.enqueue(new Callback<UploadFileResponse>() {
-            @Override
-            public void onResponse(Call<UploadFileResponse> call,
-                                   Response<UploadFileResponse> response) {
-                //Log.v("112233", response.body().getFileName()+"-------- "+response.body().getFileDownloadUri());
-                //Toasty.success(Job_Seeker_CV_Upload.this,response.body().toString(),Toast.LENGTH_LONG, true).show();
-                if(response.body().getStatus().toString().equalsIgnoreCase("200")){
 
-                    //--success
-                    Toasty.success(Job_Seeker_CV_Upload.this,"CV uploaded successfully!",Toast.LENGTH_LONG, true).show();
+        }else {
+            //--
+            Call<UploadFileResponse> call = service.uploadImageWithId(body,Integer.parseInt(userID),"CV");
+            call.enqueue(new Callback<UploadFileResponse>() {
+                @Override
+                public void onResponse(Call<UploadFileResponse> call,
+                                       Response<UploadFileResponse> response) {
+                    //Log.v("112233", response.body().getFileName()+"-------- "+response.body().getFileDownloadUri());
+                    //Toasty.success(Job_Seeker_CV_Upload.this,response.body().toString(),Toast.LENGTH_LONG, true).show();
+                    Log.d(TAG,response.body().getFileDownloadUri());
 
-                }else{
 
-                    Toasty.error(Job_Seeker_CV_Upload.this,"User not created yet!",Toast.LENGTH_LONG, true).show();
+                    if(response.body().getStatus() == 200){
+
+                        //--success
+                        Toasty.success(Job_Seeker_CV_Upload.this,"CV uploaded successfully!",Toast.LENGTH_LONG, true).show();
+
+                    }else{
+
+                        Toasty.error(Job_Seeker_CV_Upload.this,"User not created yet!",Toast.LENGTH_LONG, true).show();
+                    }
+
+
+                    hideLoadingBar();
                 }
 
-                hideLoadingBar();
-            }
+                @Override
+                public void onFailure(Call<UploadFileResponse> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    hideLoadingBar();
+                }
+            });
 
-            @Override
-            public void onFailure(Call<UploadFileResponse> call, Throwable t) {
-                Log.e("112233", t.getMessage());
-                hideLoadingBar();
-            }
-        });
+
+            //-------------------
+        }
+
+
     }
 
 

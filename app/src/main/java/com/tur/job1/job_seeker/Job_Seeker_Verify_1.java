@@ -2,6 +2,7 @@ package com.tur.job1.job_seeker;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,21 +19,28 @@ import android.widget.Toast;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.hbb20.CountryCodePicker;
 import com.tur.job1.Intro;
 import com.tur.job1.R;
+import com.tur.job1.models.LoginInformationResponse;
+import com.tur.job1.models.PhoneNumberCheck;
+import com.tur.job1.models.SignUpResponse;
+import com.tur.job1.others.API_Retrofit;
 import com.tur.job1.others.Connectivity;
 import com.tur.job1.others.ConstantsHolder;
+import com.tur.job1.others.ServiceGenerator;
 
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import es.dmoral.toasty.Toasty;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
@@ -54,9 +62,9 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
 
     //public String otpID;
-    public static String userName;
-    public static   String userPhone;
-    public  static  String userPurePhone;
+    private String userName;
+    private String userPhone;
+    private String userPurePhone;
 
 
 
@@ -189,7 +197,19 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
                             //-- task
                             userName = tempName;
                             userPhone = tempPhone;
-                            userPurePhone = phone_number.getText().toString().trim();
+                            userPurePhone = removePlusFromPhone(userPhone);
+
+                            SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+                            editor.putString("username", userName);
+                            editor.putString("userphone", userPhone);
+                            editor.putString("userphonepure", userPurePhone);
+
+                            editor.apply();
+
+                            /*
+
+
+                             */
 
                            // Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
                            // startActivity(openSecondVerifier);
@@ -269,9 +289,64 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
     private void phone_number_check(String userPhone) {
 
 
+        //--
+
+        API_Retrofit service =
+                ServiceGenerator.createService(API_Retrofit.class);
+
+
+        JSONObject parameters = new JSONObject();
+        try {
+            parameters.put("userPhoneNumber", userPhone);
+            parameters.put("userType",0);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //Log.d(TAG,parameters.toString());
+
+        Call<PhoneNumberCheck> call = service.userExistCheck(parameters);
+        call.enqueue(new Callback<PhoneNumberCheck>() {
+            @Override
+            public void onResponse(Call<PhoneNumberCheck> call,
+                                   Response<PhoneNumberCheck> response) {
+
+               // Log.d(TAG,response.body().isUserExist()+"----------------"+response.body().isUserSobseeker());
+
+
+                if(response.body().isUserExist()){
+
+                    Toasty.error(Job_Seeker_Verify_1.this, "This phone number already exists! Try log in now.", Toast.LENGTH_LONG, true).show();
+
+
+                }else {
+
+                    //Toasty.success(Job_Seeker_Verify_1.this, "You can open a new account", Toast.LENGTH_LONG, true).show();
+                    Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
+                    startActivity(openSecondVerifier);
+                    finish();
+
+                }
+
+               //                 hideLoadingBar();
+            }
+
+            @Override
+            public void onFailure(Call<PhoneNumberCheck> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+               // hideLoadingBar();
+            }
+        });
+
+
+        //-----------------
 
 
 
+
+/*
         JSONObject parameters = new JSONObject();
         try {
             parameters.put("userPhoneNumber", userPhone);
@@ -311,6 +386,7 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         rq.getCache().clear();
         rq.add(jsonObjectRequest);
+        */
     }
 
     // if the signup successfull then this method will call and it store the user info in local
@@ -318,6 +394,8 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
         try {
             JSONObject jsonObject=new JSONObject(loginData);
             String userExist =jsonObject.optString("userExist");
+
+
 
             if(userExist.equalsIgnoreCase("true")){
 

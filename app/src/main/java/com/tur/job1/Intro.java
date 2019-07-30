@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.tur.job1.job_seeker.Job_Seeker_CV_Upload;
+import com.tur.job1.job_seeker.Job_Seeker_Verify_1;
 import com.tur.job1.others.Connectivity;
 
 import es.dmoral.toasty.Toasty;
@@ -57,7 +58,7 @@ public class Intro extends AppCompatActivity {
                 if (Connectivity.isConnected(Intro.this)) {
 
 
-                    Intent openJobSeekerSignUp = new Intent(Intro.this, Job_Seeker_CV_Upload.class);
+                    Intent openJobSeekerSignUp = new Intent(Intro.this, Job_Seeker_Verify_1.class);
                     startActivity(openJobSeekerSignUp);
                     finish();
 

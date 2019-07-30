@@ -4,10 +4,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class PhoneNumberCheck {
 
-    @SerializedName("userExistr")
-    private boolean userExist;
 
-    @SerializedName("userSobseeker")
+    private boolean userExist;
     private  boolean userSobseeker;
 
 
