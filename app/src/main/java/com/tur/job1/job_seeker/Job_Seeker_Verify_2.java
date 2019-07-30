@@ -113,6 +113,8 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
 
         String userPhone = prefs.getString("userphone", "null");
+
+
         send_otp_by_firebase(userPhone);
 
         resendButton.setText("Did not get the OTP code? "+ Html.fromHtml("<p><u>Resend</u></p>"));
@@ -218,9 +220,9 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
             }else {
 
 
-                registerUser(userName,userPhone);
+                //registerUser(userName,userPhone);
 
-        /*
+
 
         verificationCallBack();
 
@@ -241,7 +243,7 @@ public class Job_Seeker_Verify_2 extends AppCompatActivity {
 
 
         //--
-        */
+
 
             }
         }
