@@ -145,7 +145,7 @@
                                     android:orientation="vertical">
 
                                     <com.suke.widget.SwitchButton
-                                        android:id="@+id/switch_button"
+                                        android:id="@+id/visible_swith"
                                         android:layout_width="wrap_content"
                                         android:layout_height="30dp"
                                         android:layout_gravity="right"
@@ -268,16 +268,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/phoneBox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
-                                            android:digits="1234567890+"
 
                                             android:clickable="false"
-                                            android:focusable="false"
+                                            android:digits="1234567890+"
 
                                             android:ems="10"
+                                            android:focusable="false"
                                             android:focusableInTouchMode="false"
                                             android:hint="4"
                                             android:inputType="textPersonName"
@@ -494,16 +495,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/skillBox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+                                            android:clickable="false"
+
                                             android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,"
                                             android:ems="10"
 
-                                            android:clickable="false"
                                             android:focusable="false"
-
                                             android:hint="Android Development,\nGame Development,\nREST api development"
                                             android:inputType="text"
                                             android:textColor="#000000"
@@ -518,6 +520,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/skill_input"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"
@@ -565,16 +568,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/exprienceBox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+                                            android:clickable="false"
+
                                             android:digits="1234567890"
                                             android:ems="10"
 
-                                            android:clickable="false"
                                             android:focusable="false"
-
                                             android:hint="4"
                                             android:inputType="number"
                                             android:textColor="#000000"
@@ -589,6 +593,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/experienceInput"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"
@@ -636,16 +641,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/salaryBox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+                                            android:clickable="false"
+
                                             android:digits="1234567890"
                                             android:ems="10"
 
-                                            android:clickable="false"
                                             android:focusable="false"
-
                                             android:hint="Ex : 55000"
                                             android:inputType="number"
                                             android:textColor="#000000"
@@ -660,6 +666,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/salaryInput"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"
@@ -720,20 +727,22 @@
                                                 android:orientation="vertical">
 
                                                 <EditText
+                                                    android:id="@+id/currentCompanyBox"
                                                     android:layout_width="match_parent"
                                                     android:layout_height="wrap_content"
                                                     android:layout_weight=".5"
                                                     android:background="@drawable/flag_transparent"
+                                                    android:clickable="false"
+
                                                     android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                                     android:ems="10"
 
-                                                    android:clickable="false"
                                                     android:focusable="false"
-
                                                     android:hint="Company name"
                                                     android:inputType="textPersonName"
+                                                    android:maxLines="1"
                                                     android:textColor="#000000"
-                                                    android:textSize="16sp"
+                                                    android:textSize="12sp"
                                                     android:theme="@style/EditTextTheme1" />
                                             </LinearLayout>
 
@@ -744,6 +753,7 @@
                                                 android:orientation="vertical">
 
                                                 <ImageView
+                                                    android:id="@+id/current_company_input"
                                                     android:layout_width="20dp"
                                                     android:layout_height="20dp"
                                                     android:layout_gravity="right"
@@ -790,20 +800,22 @@
                                                 android:orientation="vertical">
 
                                                 <EditText
+                                                    android:id="@+id/designationBox"
                                                     android:layout_width="match_parent"
                                                     android:layout_height="wrap_content"
                                                     android:layout_weight=".5"
                                                     android:background="@drawable/flag_transparent"
+                                                    android:clickable="false"
+
                                                     android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                                     android:ems="10"
 
-                                                    android:clickable="false"
                                                     android:focusable="false"
-
                                                     android:hint="Designation"
                                                     android:inputType="textPersonName"
+                                                    android:maxLines="1"
                                                     android:textColor="#000000"
-                                                    android:textSize="16sp"
+                                                    android:textSize="12sp"
                                                     android:theme="@style/EditTextTheme1" />
                                             </LinearLayout>
 
@@ -814,6 +826,7 @@
                                                 android:orientation="vertical">
 
                                                 <ImageView
+                                                    android:id="@+id/designation_input"
                                                     android:layout_width="20dp"
                                                     android:layout_height="20dp"
                                                     android:layout_gravity="right"
@@ -864,16 +877,17 @@
                                         android:orientation="vertical">
 
                                         <EditText
+                                            android:id="@+id/preparedLocationBox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+                                            android:clickable="false"
+
                                             android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                             android:ems="10"
 
-                                            android:clickable="false"
                                             android:focusable="false"
-
                                             android:hint="Ex : Dhanmondi"
                                             android:inputType="textPersonName"
                                             android:textColor="#000000"
@@ -888,6 +902,7 @@
                                         android:orientation="vertical">
 
                                         <ImageView
+                                            android:id="@+id/prepared_location_input"
                                             android:layout_width="20dp"
                                             android:layout_height="20dp"
                                             android:layout_gravity="right"

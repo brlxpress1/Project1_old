@@ -38,6 +38,12 @@ public interface API_Retrofit {
     Call<SignUpResponse> signUpJobSeeker(
             @Body JSONObject rawJson);
 
+    // Registration api for both job seeker & company
+    @Headers("Content-Type: application/json")
+    @POST("FindUserDetails")
+    Call<LoginInformationResponse> fetchUserData(
+            @Body JSONObject rawJson);
+
 
 }
 

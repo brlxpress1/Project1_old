@@ -6,4 +6,5 @@ public class ConstantsHolder {
 
     public static String phoneCheck = "UserCheck";
     public static String signupUser = "UserSignUp";
+    public static String fetchUserData = "FindUserDetails";
 }
