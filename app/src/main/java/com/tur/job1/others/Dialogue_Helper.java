@@ -6,14 +6,25 @@ import android.content.DialogInterface;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.tur.job1.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import es.dmoral.toasty.Toasty;
 
+
 public class Dialogue_Helper {
+
+
+
+
 
 
 
@@ -156,6 +167,17 @@ public class Dialogue_Helper {
         // show it
         alertDialog.show();
     }
+
+    //-------------------
+
+    //-- Showing Skills input
+    public void askingForSkills(Activity actv, EditText edt, ArrayList<String> mString) {
+
+
+
+    }
+
+
 
     //-------------------
 }

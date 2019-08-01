@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -51,6 +52,7 @@ import com.tur.job1.others.ConstantsHolder;
 import com.tur.job1.others.Dialogue_Helper;
 import com.tur.job1.others.ImagePickerActivity;
 import com.tur.job1.others.ServiceGenerator;
+import com.tur.job1.others.Skill_Selector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -111,11 +113,19 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     private ImageView preferredInputOpener;
     private EditText preferredBox;
 
+    List<String> skillIdList = new ArrayList<String>();
+
+    List<String> skillNameList = new ArrayList<String>();
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job_seeker_dashboard);
+
+
 
 
         changeProfile = (TextView)findViewById(R.id.change_profile);
@@ -244,6 +254,15 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
 
                  showDatePickerDialog();
+            }
+        });
+
+        skillsInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                openSkillInput();
+
             }
         });
 
@@ -422,6 +441,13 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         //Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the Email!", Toast.LENGTH_LONG, true).show();
     }
 
+    public void openSkillInput(){
+
+        Intent openCVwindow = new Intent(Job_Seeker_Dashboard.this, Skill_Selector.class);
+        startActivity(openCVwindow);
+        finish();
+    }
+
 
 
     //-----------------
@@ -567,6 +593,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
                 // 6.Printing skills set
                  // to do
+                // Getting the Skill Set
+                //JSONObject jobsHistories = jobSeekerModel.optJSONObject("jobsHistories");
                 //-----------
 
                 // 7.Printing the Experience
@@ -664,6 +692,39 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
 
         dialog.dismiss();
+
+    }
+
+    private void showSkillList(){
+
+        skillIdList.clear();
+        skillNameList.clear();
+
+
+        skillIdList.add("1");
+        skillIdList.add("2");
+        skillIdList.add("3");
+        skillIdList.add("4");
+        skillIdList.add("5");
+
+        skillNameList.add("Android");
+        skillNameList.add("iOS");
+        skillNameList.add("Backend");
+        skillNameList.add("Frontend");
+        skillNameList.add("Hardware");
+
+        //List<String> tempPlayerStateList = new ArrayList<String>(Arrays.asList(playerImageList));
+
+        //lv.setAdapter(new SquadInnerAdapter(this,dataList.length,nameList,posList, tempPlayerStateList));
+
+    }
+
+
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        String[] options = this.getResources().getStringArray(R.array.Animals);;
+
+        Toast.makeText(this, " You select >> "+options[position], Toast.LENGTH_SHORT).show();
 
     }
 
