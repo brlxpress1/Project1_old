@@ -32,7 +32,7 @@ public class SkillsSetAdapter extends BaseAdapter {
 
 
     int count;
-    ArrayList<String> skillID;
+    //ArrayList<String> skillID;
     ArrayList<String> skillName;
 
     Context context;
@@ -41,7 +41,7 @@ public class SkillsSetAdapter extends BaseAdapter {
 
     private static LayoutInflater inflater=null;
 
-    public SkillsSetAdapter(Skill_Selector mainActivity, int count1, ArrayList<String> skillID1, ArrayList<String> skillName1) {
+    public SkillsSetAdapter(Skill_Selector mainActivity, int count1, ArrayList<String> skillName1) {
 
         // TODO Auto-generated constructor stub
 
@@ -50,7 +50,7 @@ public class SkillsSetAdapter extends BaseAdapter {
 
 
         count = count1;
-        skillID = skillID1;
+        //skillID = skillID1;
         skillName = skillName1;
 
         context=mainActivity;
@@ -103,9 +103,9 @@ public class SkillsSetAdapter extends BaseAdapter {
 
     {
 
-        TextView skill_id_display;
+        //TextView skill_id_display;
         TextView skill_name_display;
-        ImageView crossButton;
+        LinearLayout crossButton;
 
 
     }
@@ -126,13 +126,27 @@ public class SkillsSetAdapter extends BaseAdapter {
 
 
 
-        holder.skill_id_display=(TextView) rowView.findViewById(R.id.skillID);
+        //holder.skill_id_display=(TextView) rowView.findViewById(R.id.skillID);
         holder.skill_name_display=(TextView) rowView.findViewById(R.id.skillName);
-        holder.crossButton = (ImageView)rowView.findViewById(R.id.crossbutton);
+        holder.crossButton = (LinearLayout)rowView.findViewById(R.id.crossbutton);
 
 
-        holder.skill_id_display.setText("1");
+        //holder.skill_id_display.setText("1");
         holder.skill_name_display.setText(skillName.get(position));
+
+        holder.crossButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+
+            public void onClick(View view) {
+
+
+
+                ((Skill_Selector)context).deleteSkillFromList(skillName.get(position));
+
+            }
+
+        });
 
         return rowView;
 

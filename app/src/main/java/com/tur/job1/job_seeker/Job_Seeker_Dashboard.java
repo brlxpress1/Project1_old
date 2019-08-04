@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -89,6 +91,9 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
     private EditText phoneBox;
 
+    private LinearLayout gender_input;
+    private Spinner genderBox;
+
     private ImageView emailInputOpener;
     public EditText emailBox;
 
@@ -138,6 +143,9 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
         phoneBox = (EditText)findViewById(R.id.phoneBox);
 
+        gender_input = (LinearLayout)findViewById(R.id.gender_input);
+        genderBox = (Spinner)findViewById(R.id.genderbox);
+
         emailInputOpener = (ImageView)findViewById(R.id.email_input);
         emailBox = (EditText)findViewById(R.id.emailbox);
 
@@ -160,7 +168,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         designationCompanyBox = (EditText)findViewById(R.id.designationBox);
 
         preferredInputOpener = (ImageView)findViewById(R.id.prepared_location_input);
-        preferredBox = (EditText)findViewById(R.id.preparedLocationBox);
+        preferredBox = (EditText) findViewById(R.id.locationbox);
 
 
 
@@ -189,6 +197,34 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
             }
         });
+
+
+        gender_input.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                genderBox.performClick();
+            }
+        });
+
+
+
+        genderBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                //check if spinner2 has a selected item and show the value in edittext
+                //Toasty.success(Job_Seeker_Dashboard.this, parent.getSelectedItem().toString(), Toast.LENGTH_LONG, true).show();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+                // sometimes you need nothing here
+            }
+        });
+
 
         emailInputOpener.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,6 +301,54 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
             }
         });
+
+        experienceInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                openExperienceInput();
+            }
+        });
+
+        salaryInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                openSalaryInput();
+            }
+        });
+
+        currentCompanyInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                openCurrentCompanyInput();
+
+            }
+        });
+
+        designationInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                openDesignationInput();
+            }
+        });
+
+        preferredInputOpener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                openLocationInput();
+            }
+        });
+
+
+
+
 
 
         //-------------
@@ -448,6 +532,39 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         finish();
     }
 
+    public void openExperienceInput(){
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForExperience(this,experienceBox);
+    }
+
+    public void openSalaryInput(){
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForSalary(this,salaryBox);
+    }
+
+    public void openCurrentCompanyInput(){
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForCurrentCompany(this,currentCompanyBox);
+    }
+
+    public void openDesignationInput(){
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForDesignation(this,designationCompanyBox);
+    }
+
+    public void openLocationInput(){
+
+        Dialogue_Helper dh = new Dialogue_Helper();
+        dh.askingForPreperedLocation(this,preferredBox);
+    }
+
+
+
+
 
 
     //-----------------
@@ -567,6 +684,31 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 }
                 //-----------
 
+                // 3_1.Printing the gender type
+                String gender = jobSeekerModel.optString("gender");
+                if(gender != null && !gender.equalsIgnoreCase("") && !gender.equalsIgnoreCase("null")){
+
+                    if(gender.equalsIgnoreCase("male")){
+
+                        genderBox.setSelection(0);
+
+                    }else if(gender.equalsIgnoreCase("female")){
+
+                        genderBox.setSelection(1);
+
+                    }else if(gender.equalsIgnoreCase("other")){
+
+                        genderBox.setSelection(2);
+
+
+                    }else{
+
+                        //genderBox.setSelection(0);
+                    }
+                    //nameBox.setText(fullName);
+                }
+                //-----------
+
                 // 4.Printing the phone number
                 String phone = jobSeekerModel.optString("phone");
                 if(phone != null && !phone.equalsIgnoreCase("") && !phone.equalsIgnoreCase("null")){
@@ -636,6 +778,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 // 10.Printing the Prepared location
                 String preferLocation = jobSeekerModel.optString("preferLocation");
                 if(preferLocation != null && !preferLocation.equalsIgnoreCase("") && !preferLocation.equalsIgnoreCase("null")){
+
 
                     preferredBox.setText(preferLocation);
                 }
@@ -719,14 +862,13 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
     }
 
-
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        String[] options = this.getResources().getStringArray(R.array.Animals);;
-
-        Toast.makeText(this, " You select >> "+options[position], Toast.LENGTH_SHORT).show();
-
+    public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
+        Toast.makeText(parent.getContext(),
+                "OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString(),
+                Toast.LENGTH_SHORT).show();
     }
+
+
 
 
 

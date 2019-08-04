@@ -33,14 +33,23 @@
     <string name="action_reset">Reset</string>
     <string name="no_selection">No Selection</string>
 
-    <string-array name="Animals">
-        <item>Select Animal!!</item>
-        <item>Lion</item>
-        <item>Tiger</item>
-        <item>Elephant</item>
-        <item>Zebra</item>
-        <item>Giraffe</item>
-        <item>Deer</item>
+    <string name="gender_prompt">Select your gender</string>
+    <string-array name="gender_array">
+
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+
+    </string-array>
+
+    <string-array name="prepared_location">
+
+        <item>Dhanmondi</item>
+        <item>Gulshan</item>
+        <item>Mirpur</item>
+        <item>Uttara</item>
+        <item>Puran Dhaka</item>
+
     </string-array>
 
 

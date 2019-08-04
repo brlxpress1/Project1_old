@@ -233,6 +233,73 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/panel3_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight=".5"
+                                android:fontFamily="serif"
+                                android:text="Gender"
+                                android:textColor="@color/color2"
+                                android:textSize="16sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="2dp"
+                                android:layout_weight=".5"
+                                android:background="@drawable/underline_shape"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="horizontal">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight=".2"
+                                        android:orientation="vertical">
+
+                                        <Spinner
+                                            android:id="@+id/genderbox"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight=".5"
+                                            android:background="@android:color/transparent"
+                                            android:clickable="false"
+                                            android:entries="@array/gender_array"
+                                            android:longClickable="false"
+                                            android:prompt="@string/gender_prompt" />
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:id="@+id/gender_input"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight=".8"
+                                        android:orientation="vertical">
+
+                                        <ImageView
+                                            android:layout_width="20dp"
+                                            android:layout_height="20dp"
+                                            android:layout_gravity="right"
+                                            app:srcCompat="@drawable/arrow" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:id="@+id/panel4"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -434,8 +501,6 @@
                                             android:textColor="#000000"
                                             android:textSize="16sp"
                                             android:theme="@style/EditTextTheme1" />
-
-
 
 
                                     </LinearLayout>
@@ -877,16 +942,16 @@
                                         android:orientation="vertical">
 
                                         <EditText
-                                            android:id="@+id/preparedLocationBox"
+                                            android:id="@+id/locationbox"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_weight=".5"
                                             android:background="@drawable/flag_transparent"
+
                                             android:clickable="false"
+                                            android:digits="1234567890"
 
-                                            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                             android:ems="10"
-
                                             android:focusable="false"
                                             android:hint="Ex : Dhanmondi"
                                             android:inputType="textPersonName"
