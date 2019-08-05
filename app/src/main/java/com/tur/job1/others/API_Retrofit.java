@@ -1,5 +1,7 @@
 package com.tur.job1.others;
 
+
+import com.tur.job1.models.DateResponse;
 import com.tur.job1.models.LoginInformationResponse;
 import com.tur.job1.models.PhoneNumberCheck;
 import com.tur.job1.models.SignUpResponse;
@@ -42,6 +44,13 @@ public interface API_Retrofit {
     @Headers("Content-Type: application/json")
     @POST("FindUserDetails")
     Call<LoginInformationResponse> fetchUserData(
+            @Body JSONObject rawJson);
+
+
+    //
+    @Headers("Content-Type: application/json")
+    @POST("UserDetails/JobSeeker/BirthDayUpdate")
+    Call<DateResponse> updateBirthDate(
             @Body JSONObject rawJson);
 
 

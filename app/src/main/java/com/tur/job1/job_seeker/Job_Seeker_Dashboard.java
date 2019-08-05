@@ -31,6 +31,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -47,12 +48,16 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.suke.widget.SwitchButton;
 import com.tur.job1.R;
+import com.tur.job1.models.DateResponse;
 import com.tur.job1.models.LoginInformationResponse;
 import com.tur.job1.models.PhoneNumberCheck;
+import com.tur.job1.models.UploadFileResponse;
 import com.tur.job1.others.API_Retrofit;
 import com.tur.job1.others.ConstantsHolder;
 import com.tur.job1.others.Dialogue_Helper;
+import com.tur.job1.others.FileUploadService;
 import com.tur.job1.others.ImagePickerActivity;
+import com.tur.job1.others.SaveImage;
 import com.tur.job1.others.ServiceGenerator;
 import com.tur.job1.others.Skill_Selector;
 
@@ -60,13 +65,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -121,6 +136,9 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     List<String> skillIdList = new ArrayList<String>();
 
     List<String> skillNameList = new ArrayList<String>();
+
+    private int genderSpineerFlag = 0;
+    private JSONObject newObject;
 
 
 
@@ -199,6 +217,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         });
 
 
+
         gender_input.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -208,13 +227,20 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         });
 
 
-
+        genderSpineerFlag = 0;
         genderBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 //check if spinner2 has a selected item and show the value in edittext
                 //Toasty.success(Job_Seeker_Dashboard.this, parent.getSelectedItem().toString(), Toast.LENGTH_LONG, true).show();
+                if(genderSpineerFlag >= 1){
+                    UpdateGender(1,1,genderBox.getSelectedItem().toString());
+                }else {
+                    genderSpineerFlag++;
+                }
+
+
 
             }
 
@@ -235,53 +261,6 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
             }
         });
 
-        datelInputOpener.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-
-            }
-        });
-
-        //----------------------
-        nameBox.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                //Toast.makeText(getApplicationContext(),"before text change",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                // Toast.makeText(getApplicationContext(),"after text change",Toast.LENGTH_LONG).show();
-                //setName();
-            }
-        });
-
-        emailBox.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                //Toast.makeText(getApplicationContext(),"before text change",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                // Toast.makeText(getApplicationContext(),"after text change",Toast.LENGTH_LONG).show();
-                //setEmail();
-            }
-        });
 
 
         datelInputOpener.setOnClickListener(new View.OnClickListener() {
@@ -366,7 +345,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
         }else{
 
-            // Go to Log in
+            //Go to Log in
         }
 
 
@@ -376,6 +355,18 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //genderSpineerFlag = 0;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //genderSpineerFlag = 0;
     }
 
     //-- Image picker tasks
@@ -451,8 +442,19 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                     // You can update this bitmap to your server
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-                    // loading profile image from local cache
-                    loadProfile(uri.toString());
+
+
+
+                    SaveImage saveImage = new SaveImage();
+                    File file = saveImage.saveBitMap(getApplicationContext(),this,bitmap,getCurrentTimeStamp());
+                    uploadImageWithId(file, getCurrentTimeStamp());
+                    //Log.d("11111",file.getAbsolutePath());
+
+
+
+
+
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -495,6 +497,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 .placeholder(R.drawable.default_avatar)
                 .into(profileImage);
         //imgProfile.setColorFilter(ContextCompat.getColor(ct, android.R.color.transparent));
+
+
     }
 
     //------------------
@@ -504,25 +508,30 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
 
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForName(this,nameBox);
+        dh.askingForName(this,nameBox,this);
     }
 
     public void setName(){
 
         //nameBox.setText(name);
         //Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the name!", Toast.LENGTH_LONG, true).show();
+        UpdateUserName(1,1,nameBox.getText().toString());
+
 
     }
 
     public void openEmailInput(){
 
+
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForEmail(this,emailBox);
+        dh.askingForEmail(this,emailBox,this);
+
     }
 
     public void setEmail(){
 
         //Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the Email!", Toast.LENGTH_LONG, true).show();
+        UpdateUserEmail(1,1,emailBox.getText().toString());
     }
 
     public void openSkillInput(){
@@ -582,7 +591,14 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         //String date = "month/day/year: " + month + "/" + dayOfMonth + "/" + year;
         String date2 = dayOfMonth+"/"+month+"/"+year;
+        //String date3 = dayOfMonth+"_"+month+"_"+year;
+
+
         dateBox.setText(date2);
+
+        //-- update date api
+        UpdateUserBirthdate(1,1,String.valueOf(dayOfMonth),String.valueOf(month),String.valueOf(year));
+        //Log.d(TAG,date2);
     }
 
     // this method will store the info of user to  database
@@ -838,29 +854,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
     }
 
-    private void showSkillList(){
 
-        skillIdList.clear();
-        skillNameList.clear();
-
-
-        skillIdList.add("1");
-        skillIdList.add("2");
-        skillIdList.add("3");
-        skillIdList.add("4");
-        skillIdList.add("5");
-
-        skillNameList.add("Android");
-        skillNameList.add("iOS");
-        skillNameList.add("Backend");
-        skillNameList.add("Frontend");
-        skillNameList.add("Hardware");
-
-        //List<String> tempPlayerStateList = new ArrayList<String>(Arrays.asList(playerImageList));
-
-        //lv.setAdapter(new SquadInnerAdapter(this,dataList.length,nameList,posList, tempPlayerStateList));
-
-    }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
         Toast.makeText(parent.getContext(),
@@ -868,6 +862,391 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 Toast.LENGTH_SHORT).show();
     }
 
+    public String getCurrentTimeStamp(){
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyyhmmss");
+        String format = simpleDateFormat.format(new Date());
+
+        return format;
+    }
+
+    //--------------------------------------
+
+    //-- Update api calls
+
+
+    //--
+
+    // Profile image upload
+    private void uploadImageWithId(File file1, String shortFilePath) {
+
+        showLoadingBarAlert();
+
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        String userID = prefs.getString("userid", "null");
+
+
+
+
+
+
+
+        if(userID.equalsIgnoreCase(null)){
+
+            //-- Go to sign up screen
+
+
+        }else {
+
+            // create upload service client
+            FileUploadService service =
+                    ServiceGenerator.createService(FileUploadService.class);
+
+            // https://github.com/iPaulPro/aFileChooser/blob/master/aFileChooser/src/com/ipaulpro/afilechooser/utils/FileUtils.java
+            // use the FileUtils to get the actual file by uri
+            //File file = FileUtils.getFile(this, fileUri);
+            File file = file1;//File file = new File(filePath);;//FileUtils.getFile(this, fileUri);
+           // Uri myUri = Uri.parse(filePath);
+
+
+
+            // create RequestBody instance from file
+            RequestBody requestFile =
+                    RequestBody.create(
+                            MediaType.parse(userID.toString()+"_"+shortFilePath),
+                            file
+                    );
+
+            // MultipartBody.Part is used to send also the actual file name
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+            //--
+            Call<UploadFileResponse> call = service.uploadImageWithId(body,1,"PNG");
+            call.enqueue(new Callback<UploadFileResponse>() {
+                @Override
+                public void onResponse(Call<UploadFileResponse> call,
+                                       retrofit2.Response<UploadFileResponse> response) {
+                    Log.v(TAG, response.body().getFileName()+"-------- "+response.body().getFileDownloadUri());
+                    //Toasty.success(Job_Seeker_CV_Upload.this,response.body().toString(),Toast.LENGTH_LONG, true).show();
+                    Log.d(TAG,response.body().getFileDownloadUri());
+
+
+                    if(response.body().getStatus() == 200){
+
+                        //--success
+                        Toasty.success(Job_Seeker_Dashboard.this,"Profile image updated!",Toast.LENGTH_LONG, true).show();
+
+                        // loading profile image from local cache
+                        loadProfile(file1.getAbsolutePath());
+
+                    }else{
+
+                        Toasty.error(Job_Seeker_Dashboard.this,"Can't upload profile image at this time! Try again later.",Toast.LENGTH_LONG, true).show();
+                    }
+
+
+                    hideLoadingBar();
+                }
+
+                @Override
+                public void onFailure(Call<UploadFileResponse> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    hideLoadingBar();
+                }
+            });
+
+
+            //-------------------
+        }
+
+
+    }
+
+    //---------
+
+    // Name update
+    private void UpdateUserName(int userID,int userType, String userName) {
+
+        showLoadingBarAlert();
+
+        //
+        String namePart = "1/"+userName;
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, ConstantsHolder.rawServer+ConstantsHolder.updateUserName+namePart, null, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                            Toasty.success(Job_Seeker_Dashboard.this,"Name updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else {
+
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update name! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+        //-----------------
+
+    }
+
+    // Gender update
+    private void UpdateGender(int userID,int userType, String genderName) {
+
+       // showLoadingBarAlert();
+
+        //
+        String namePart = "1/"+genderName;
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, ConstantsHolder.rawServer+ConstantsHolder.updateGender+namePart, null, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                           // Toasty.success(Job_Seeker_Dashboard.this,"Gender updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else {
+
+
+                          //  Toasty.error(Job_Seeker_Dashboard.this,"Can't update gender! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                       // hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                       // hideLoadingBar();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+        //-----------------
+
+    }
+
+    // Email update
+    private void UpdateUserEmail(int userID,int userType, String userEmail) {
+
+        showLoadingBarAlert();
+
+        //
+        String namePart = "1/"+userEmail;
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, ConstantsHolder.rawServer+ConstantsHolder.updateUserEmail+namePart, null, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                            Toasty.success(Job_Seeker_Dashboard.this,"Email updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else {
+
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update Email! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+        //-----------------
+
+    }
+
+    // Birthdate update
+    private void UpdateUserBirthdate(int userID,int userType, String day, String month, String year) {
+
+        //showLoadingBarAlert();
+
+
+        //--
+
+        API_Retrofit service =
+                ServiceGenerator.createService(API_Retrofit.class);
+
+
+        JSONObject parameters = new JSONObject();
+        try {
+
+
+
+
+            parameters.put("userId", userID);
+            parameters.put("day", day);
+            parameters.put("month",month);
+            parameters.put("year",year);
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,parameters.toString());
+
+        Call<DateResponse> call = service.updateBirthDate(parameters);
+        call.enqueue(new Callback<DateResponse>() {
+            @Override
+            public void onResponse(Call<DateResponse> call,
+                                   retrofit2.Response<DateResponse> response) {
+
+                // Log.d(TAG,response.body().isUserExist()+"----------------"+response.body().isUserSobseeker());
+
+
+               Log.d(TAG,response.toString());
+            }
+
+            @Override
+            public void onFailure(Call<DateResponse> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+                // hideLoadingBar();
+            }
+        });
+
+
+        //-----------------
+
+
+/*
+        JSONObject parameters = new JSONObject();
+        try {
+
+
+
+
+            parameters.put("userId", 1);
+            parameters.put("day", "12");
+            parameters.put("month","01");
+            parameters.put("year","2018");
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,parameters.toString());
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, "http://192.168.70.165:8080/UserDetails/JobSeeker/BirthDayUpdate", parameters, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d("1122233",respo);
+
+                        //parseSignUpData(respo);
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+*/
+
+    }
 
 
 

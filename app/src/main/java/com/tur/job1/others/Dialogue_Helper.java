@@ -14,9 +14,12 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.tur.job1.R;
+import com.tur.job1.job_seeker.Job_Seeker_Dashboard;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.security.auth.callback.Callback;
 
 import es.dmoral.toasty.Toasty;
 
@@ -30,7 +33,7 @@ public class Dialogue_Helper {
 
 
     //-- Showing name input
-    public void askingForName(Activity actv, EditText edt) {
+    public void askingForName(Activity actv, EditText edt, Job_Seeker_Dashboard job_seeker_dashboard ) {
 
 
 
@@ -63,12 +66,14 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "You have to type your name!", Toast.LENGTH_LONG, true).show();
-                                    askingForName(actv,edt);
+                                    askingForName(actv,edt,job_seeker_dashboard);
 
 
                                 }else {
 
                                  edt.setText(nameTemp);
+
+                                 job_seeker_dashboard.setName();
 
 
                                 }
@@ -101,7 +106,7 @@ public class Dialogue_Helper {
     //-------------------
 
     //-- Showing Email input
-    public void askingForEmail(Activity actv, EditText edt) {
+    public void askingForEmail(Activity actv, EditText edt, Job_Seeker_Dashboard job_seeker_dashboard) {
 
 
 
@@ -134,12 +139,13 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "You have to type your Email!", Toast.LENGTH_LONG, true).show();
-                                    askingForName(actv,edt);
+                                    askingForEmail(actv,edt,job_seeker_dashboard);
 
 
                                 }else {
 
                                     edt.setText(nameTemp);
+                                    job_seeker_dashboard.setEmail();
 
 
                                 }
