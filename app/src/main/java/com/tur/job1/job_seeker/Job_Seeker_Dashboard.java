@@ -55,6 +55,7 @@ import com.tur.job1.models.UploadFileResponse;
 import com.tur.job1.others.API_Retrofit;
 import com.tur.job1.others.ConstantsHolder;
 import com.tur.job1.others.Dialogue_Helper;
+import com.tur.job1.others.ExtraSkillSetFetcher;
 import com.tur.job1.others.FileUploadService;
 import com.tur.job1.others.ImagePickerActivity;
 import com.tur.job1.others.SaveImage;
@@ -140,6 +141,10 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     private int genderSpineerFlag = 0;
     private JSONObject newObject;
 
+    ArrayList<String> tempSkillId = new ArrayList<>();
+    ArrayList<String> tempSkillList = new ArrayList<>();
+
+    private String userIdLocal = "";
 
 
 
@@ -235,7 +240,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 //check if spinner2 has a selected item and show the value in edittext
                 //Toasty.success(Job_Seeker_Dashboard.this, parent.getSelectedItem().toString(), Toast.LENGTH_LONG, true).show();
                 if(genderSpineerFlag >= 1){
-                    UpdateGender(1,1,genderBox.getSelectedItem().toString());
+                    UpdateGender(Integer.parseInt(userIdLocal),1,genderBox.getSelectedItem().toString());
                 }else {
                     genderSpineerFlag++;
                 }
@@ -335,13 +340,13 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
 
 
-        String userID = prefs.getString("userid", "null");
-        Log.d(TAG,"Trying to fetch user data with the user ID save in shared preference : "+userID);
+        userIdLocal = prefs.getString("userid", "null");
+        Log.d(TAG,"Trying to fetch user data with the user ID save in shared preference : "+userIdLocal);
 
-        if(userID != null && !userID.equalsIgnoreCase("")){
+        if(userIdLocal != null && !userIdLocal.equalsIgnoreCase("")){
 
             //fetch_user_info(Integer.parseInt(userID),0);
-            fetch_user_info(1,0);
+            fetch_user_info(Integer.parseInt(userIdLocal),0);
 
         }else{
 
@@ -515,7 +520,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
         //nameBox.setText(name);
         //Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the name!", Toast.LENGTH_LONG, true).show();
-        UpdateUserName(1,1,nameBox.getText().toString());
+        UpdateUserName(Integer.parseInt(userIdLocal),1,nameBox.getText().toString());
 
 
     }
@@ -531,7 +536,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     public void setEmail(){
 
         //Toasty.success(Job_Seeker_Dashboard.this, "Successfully displayed the Email!", Toast.LENGTH_LONG, true).show();
-        UpdateUserEmail(1,1,emailBox.getText().toString());
+        UpdateUserEmail(Integer.parseInt(userIdLocal),1,emailBox.getText().toString());
     }
 
     public void openSkillInput(){
@@ -544,31 +549,57 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     public void openExperienceInput(){
 
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForExperience(this,experienceBox);
+        dh.askingForExperience(this,experienceBox,this);
     }
+
+    public void setExperience(){
+
+        UpdateUserExperience(Integer.parseInt(userIdLocal),1,experienceBox.getText().toString());
+    }
+
 
     public void openSalaryInput(){
 
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForSalary(this,salaryBox);
+        dh.askingForSalary(this,salaryBox,this);
+    }
+
+    public void setSalary(){
+
+        UpdateUserSalary(Integer.parseInt(userIdLocal),1,salaryBox.getText().toString());
     }
 
     public void openCurrentCompanyInput(){
 
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForCurrentCompany(this,currentCompanyBox);
+        dh.askingForCurrentCompany(this,currentCompanyBox,this);
+    }
+
+    public void setCompany(){
+
+        UpdateUserJobHistory(Integer.parseInt(userIdLocal),1,currentCompanyBox.getText().toString(),designationCompanyBox.getText().toString(),1);
     }
 
     public void openDesignationInput(){
 
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForDesignation(this,designationCompanyBox);
+        dh.askingForDesignation(this,designationCompanyBox,this);
+    }
+
+    public void setDesignatiion(){
+
+        UpdateUserJobHistory(Integer.parseInt(userIdLocal),1,currentCompanyBox.getText().toString(),designationCompanyBox.getText().toString(),2);
     }
 
     public void openLocationInput(){
 
         Dialogue_Helper dh = new Dialogue_Helper();
-        dh.askingForPreperedLocation(this,preferredBox);
+        dh.askingForPreperedLocation(this,preferredBox,this);
+    }
+
+    public void setLocation(){
+
+        UpdateUserLocation(Integer.parseInt(userIdLocal),1,preferredBox.getText().toString());
     }
 
 
@@ -597,7 +628,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         dateBox.setText(date2);
 
         //-- update date api
-        UpdateUserBirthdate(1,1,String.valueOf(dayOfMonth),String.valueOf(month),String.valueOf(year));
+        UpdateUserBirthdate(Integer.parseInt(userIdLocal),1,String.valueOf(dayOfMonth),String.valueOf(month),String.valueOf(year));
         //Log.d(TAG,date2);
     }
 
@@ -625,7 +656,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                     @Override
                     public void onResponse(JSONObject response) {
                         String respo=response.toString();
-                        Log.d(TAG,respo);
+                        Log.d("1212",respo);
 
                         //Log.d(TAG,respo);
 
@@ -644,7 +675,17 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                         //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
 
                     }
-                });
+                }){
+
+            /** Passing some request headers* */
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Content-Type", "application/json");
+                //headers.put("apiKey", "xxxxxxxxxxxxxxx");
+                return headers;
+            }
+        };
         jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
@@ -671,11 +712,13 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 String photoUrl = jobSeekerModel.optString("photoUrl");
                 if(photoUrl != null || !photoUrl.equalsIgnoreCase("")){
 
+
                     Glide.with(this)
                             .load(photoUrl)
                             .centerCrop()
                             .placeholder(R.drawable.default_avatar)
                             .into(profileImage);
+
                 }
                 //-----------
 
@@ -767,7 +810,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 String expectedSalary = jobSeekerModel.optString("expectedSalary");
                 if(expectedSalary != null && !expectedSalary.equalsIgnoreCase("") && !expectedSalary.equalsIgnoreCase("null")){
 
-                    salaryBox.setText(experience);
+                    salaryBox.setText(expectedSalary );
                 }
                 //-----------
 
@@ -775,21 +818,26 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 // Getting the Job history info
                 JSONObject jobsHistories = jobSeekerModel.optJSONObject("jobsHistories");
 
-                // 8.Printing the Current company
-                String companyName = jobsHistories.optString("companyName");
-                if(companyName != null && !companyName.equalsIgnoreCase("") && !companyName.equalsIgnoreCase("null")){
+                if(jobsHistories != null){
 
-                    currentCompanyBox.setText(companyName);
+                    // 8.Printing the Current company
+                    String companyName = jobsHistories.optString("companyName");
+                    if(companyName != null && !companyName.equalsIgnoreCase("") && !companyName.equalsIgnoreCase("null")){
+
+                        currentCompanyBox.setText(companyName);
+                    }
+                    //-----------
+
+                    // 9.Printing the Designation
+                    String designation = jobsHistories.optString("designation");
+                    if(designation != null && !designation.equalsIgnoreCase("") && !designation.equalsIgnoreCase("null")){
+
+                        designationCompanyBox.setText(designation);
+                    }
+                    //-----------
+
                 }
-                //-----------
 
-                // 9.Printing the Designation
-                String designation = jobsHistories.optString("designation");
-                if(designation != null && !designation.equalsIgnoreCase("") && !designation.equalsIgnoreCase("null")){
-
-                    designationCompanyBox.setText(designation);
-                }
-                //-----------
 
                 // 10.Printing the Prepared location
                 String preferLocation = jobSeekerModel.optString("preferLocation");
@@ -800,9 +848,16 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 }
                 //-----------
 
+                //6.Printing skills set
+                // Getting the Skill Set
+                //JSONObject skillSet = jobSeekerModel.optJSONObject("skillsList");
+                //-----------
 
 
+               makeArrayAdapterFromJsonObj(jobSeekerModel);
                 hideLoadingBar();
+
+
 
 
             }else {
@@ -882,8 +937,6 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
         showLoadingBarAlert();
 
-        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-        String userID = prefs.getString("userid", "null");
 
 
 
@@ -891,7 +944,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
 
 
-        if(userID.equalsIgnoreCase(null)){
+        if(userIdLocal.equalsIgnoreCase("") || userIdLocal == null){
 
             //-- Go to sign up screen
 
@@ -913,7 +966,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
             // create RequestBody instance from file
             RequestBody requestFile =
                     RequestBody.create(
-                            MediaType.parse(userID.toString()+"_"+shortFilePath),
+                            MediaType.parse(userIdLocal+"_"+shortFilePath),
                             file
                     );
 
@@ -922,7 +975,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                     MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
             //--
-            Call<UploadFileResponse> call = service.uploadImageWithId(body,1,"PNG");
+            Call<UploadFileResponse> call = service.uploadImageWithId(body,Integer.parseInt(userIdLocal),"PNG");
+
             call.enqueue(new Callback<UploadFileResponse>() {
                 @Override
                 public void onResponse(Call<UploadFileResponse> call,
@@ -971,7 +1025,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         showLoadingBarAlert();
 
         //
-        String namePart = "1/"+userName;
+        String namePart = String.valueOf(userID)+"/"+userName;
 
         RequestQueue rq = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -1030,7 +1084,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
        // showLoadingBarAlert();
 
         //
-        String namePart = "1/"+genderName;
+        String namePart = String.valueOf(userID)+"/"+genderName;
 
         RequestQueue rq = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -1089,7 +1143,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         showLoadingBarAlert();
 
         //
-        String namePart = "1/"+userEmail;
+        String namePart = String.valueOf(userID)+"/"+userEmail;
 
         RequestQueue rq = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -1145,24 +1199,21 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     // Birthdate update
     private void UpdateUserBirthdate(int userID,int userType, String day, String month, String year) {
 
-        //showLoadingBarAlert();
 
 
-        //--
-
-        API_Retrofit service =
-                ServiceGenerator.createService(API_Retrofit.class);
-
-
+        showLoadingBarAlert();
         JSONObject parameters = new JSONObject();
         try {
 
 
 
+            String day1 = completeNumber(Integer.parseInt(day));
+            String month1 = completeNumber(Integer.parseInt(month));
+
 
             parameters.put("userId", userID);
-            parameters.put("day", day);
-            parameters.put("month",month);
+            parameters.put("day", day1);
+            parameters.put("month",month1);
             parameters.put("year",year);
 
 
@@ -1173,59 +1224,30 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
         Log.d(TAG,parameters.toString());
 
-        Call<DateResponse> call = service.updateBirthDate(parameters);
-        call.enqueue(new Callback<DateResponse>() {
-            @Override
-            public void onResponse(Call<DateResponse> call,
-                                   retrofit2.Response<DateResponse> response) {
-
-                // Log.d(TAG,response.body().isUserExist()+"----------------"+response.body().isUserSobseeker());
-
-
-               Log.d(TAG,response.toString());
-            }
-
-            @Override
-            public void onFailure(Call<DateResponse> call, Throwable t) {
-                Log.e(TAG, t.getMessage());
-                // hideLoadingBar();
-            }
-        });
-
-
-        //-----------------
-
-
-/*
-        JSONObject parameters = new JSONObject();
-        try {
-
-
-
-
-            parameters.put("userId", 1);
-            parameters.put("day", "12");
-            parameters.put("month","01");
-            parameters.put("year","2018");
-
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        Log.d(TAG,parameters.toString());
-
+        //TURZO
         RequestQueue rq = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, "http://192.168.70.165:8080/UserDetails/JobSeeker/BirthDayUpdate", parameters, new Response.Listener<JSONObject>() {
+                (Request.Method.POST, ConstantsHolder.rawServer+ConstantsHolder.updateUserBirthdate, parameters, new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
                         String respo=response.toString();
-                        Log.d("1122233",respo);
+                        Log.d(TAG,respo);
 
-                        //parseSignUpData(respo);
+                        int status = response.optInt("status");
+
+                        if(status == 200){
+
+                            Toasty.success(Job_Seeker_Dashboard.this,"Birth-date updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else{
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update Birth-date! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+
+                        }
+
+                        hideLoadingBar();
+
 
 
                     }
@@ -1236,6 +1258,95 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                         // TODO: Handle error
                         Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
                         //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                }){
+
+            /** Passing some request headers* */
+        @Override
+        public Map getHeaders() throws AuthFailureError {
+            HashMap headers = new HashMap();
+            headers.put("Content-Type", "application/json");
+            //headers.put("apiKey", "xxxxxxxxxxxxxxx");
+            return headers;
+        }
+
+
+    };
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                                                                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                                                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+
+
+
+
+
+    }
+
+    private String completeNumber(int data){
+        String temp = "";
+        if(data < 10 ){
+
+            temp = "0"+String.valueOf(data);
+        }else {
+
+            temp = String.valueOf(data);
+        }
+
+        return temp;
+    }
+
+
+    // Experience update
+    private void UpdateUserExperience(int userID,int userType, String experience) {
+
+        showLoadingBarAlert();
+
+        //
+        String extraPart = String.valueOf(userID)+"/"+experience;
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, ConstantsHolder.rawServer+ConstantsHolder.updateUserExperience+extraPart, null, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                            Toasty.success(Job_Seeker_Dashboard.this,"Experience updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else {
+
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update experience! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
 
                     }
                 });
@@ -1244,9 +1355,368 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         rq.getCache().clear();
         rq.add(jsonObjectRequest);
-*/
+
+        //-----------------
 
     }
+
+    // Salary update
+    private void UpdateUserSalary(int userID,int userType, String salary) {
+
+        showLoadingBarAlert();
+
+        //
+        String extraPart = String.valueOf(userID)+"/"+salary;
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, ConstantsHolder.rawServer+ConstantsHolder.updateUserSalary+extraPart, null, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                            Toasty.success(Job_Seeker_Dashboard.this,"Salary updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else {
+
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update Salary! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+        //-----------------
+
+    }
+
+    // Preferred location update
+    private void UpdateUserLocation(int userID,int userType, String location) {
+
+        showLoadingBarAlert();
+
+        //
+        String extraPart = String.valueOf(userID)+"/"+location;
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, ConstantsHolder.rawServer+ConstantsHolder.updateUserLocation+extraPart, null, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                            Toasty.success(Job_Seeker_Dashboard.this,"Location updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                        }else {
+
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update location! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                });
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+        //-----------------
+
+    }
+
+    // Job History Update
+    private void UpdateUserJobHistory(int userID,int userType, String companyName, String currentDesignation, int msgType) {
+
+        showLoadingBarAlert();
+
+        JSONObject parameters = new JSONObject();
+        try {
+
+            parameters.put("userId", userIdLocal);
+            parameters.put("companyName", companyName);
+            parameters.put("designation", currentDesignation);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,parameters.toString());
+        String extraPart = String.valueOf(userID);
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, ConstantsHolder.rawServer+ConstantsHolder.updateUserJobHistory, parameters, new com.android.volley.Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        //Log.d(TAG,respo);
+
+
+                        //parseFetchData(response);
+                        int status = response.optInt("status");
+                        if(status == 200){
+
+                            if(msgType == 1){
+
+
+                                Toasty.success(Job_Seeker_Dashboard.this,"Company updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                            }
+
+                            if(msgType == 2){
+
+
+                                Toasty.success(Job_Seeker_Dashboard.this,"Designation name updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                            }
+
+
+                        }else {
+
+
+                            Toasty.error(Job_Seeker_Dashboard.this,"Can't update location! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Job_Seeker_Dashboard.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                }){
+
+            /** Passing some request headers* */
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Content-Type", "application/json");
+                //headers.put("apiKey", "xxxxxxxxxxxxxxx");
+                return headers;
+            }
+        };
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+        //-----------------
+
+    }
+
+
+    private void makeArrayAdapterFromJsonObj(JSONObject skillSet){
+
+        if(tempSkillId.size() >0){
+            tempSkillId.clear();
+        }
+
+        try {
+
+
+            JSONArray array = skillSet.getJSONArray("skillsList");
+            if(array.length() > 0) {
+
+
+                for(int i=0; i<array.length(); i++){
+
+                    JSONObject object = array.getJSONObject(i);
+
+                    String id = object.getString("skillId");
+
+                    tempSkillId.add(id);
+
+                }
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        if(tempSkillId.size()>0){
+
+            Log.d(TAG,tempSkillId.toString());
+
+            ExtraSkillSetFetcher extraSkillSetFetcher = new ExtraSkillSetFetcher();
+            extraSkillSetFetcher.fetch_skill_list(tempSkillId,this,this);
+
+
+        }else {
+
+            Log.d(TAG,"Skill list is empty!");
+            //hideLoadingBar();
+        }
+
+        /*
+        JSONObject firstModel = skillSet.optJSONObject("skillsList");
+        Log.d(TAG,firstModel.toString());
+        if(firstModel == null){
+
+            Log.d("123456","Array is null------------------------");
+            hideLoadingBar();
+
+        }else {
+
+            Log.d(TAG,"Congratulation!!!!!!!!!!!!!!");
+            try {
+
+
+                JSONArray array = skillSet.getJSONArray("skillsList");
+                if(array.length() > 0) {
+
+
+                    for(int i=0; i<array.length(); i++){
+
+                        JSONObject object = array.getJSONObject(i);
+
+                        String id = object.getString("skillId");
+
+                        tempSkillId.add(id);
+
+                    }
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            if(tempSkillId.size()>0){
+
+                Log.d(TAG,tempSkillId.toString());
+
+                ExtraSkillSetFetcher extraSkillSetFetcher = new ExtraSkillSetFetcher();
+                extraSkillSetFetcher.fetch_skill_list(tempSkillId,this,this);
+
+
+            }else {
+
+                Log.d(TAG,"Skill list is empty!");
+            }
+
+        }
+        */
+
+
+
+        /*
+
+         try {
+
+
+            JSONArray array = skillSet.getJSONArray("skillsList");
+            if(array.length() > 0 && array != null) {
+
+
+                for(int i=0; i<array.length(); i++){
+
+                    JSONObject object = array.getJSONObject(i);
+
+                    String id = object.getString("skillId");
+
+                    tempSkillId.add(id);
+
+                }
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        if(tempSkillId.size()>0){
+
+            Log.d(TAG,tempSkillId.toString());
+
+            ExtraSkillSetFetcher extraSkillSetFetcher = new ExtraSkillSetFetcher();
+            extraSkillSetFetcher.fetch_skill_list(tempSkillId,this,this);
+        }else {
+
+            Log.d(TAG,"Skill list is empty!");
+        }
+         */
+
+
+    }
+
+
+    public void fetchExtraSkillSet(String temp){
+
+        skillsBox.setText(temp);
+        hideLoadingBar();
+
+    }
+
+
 
 
 
