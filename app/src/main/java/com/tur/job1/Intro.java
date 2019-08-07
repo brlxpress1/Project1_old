@@ -12,6 +12,7 @@ import com.tur.job1.job_seeker.Job_Seeker_CV_Upload;
 import com.tur.job1.job_seeker.Job_Seeker_Dashboard;
 import com.tur.job1.job_seeker.Job_Seeker_Verify_1;
 import com.tur.job1.others.Connectivity;
+import com.tur.job1.others.Skill_Selector;
 
 import es.dmoral.toasty.Toasty;
 
