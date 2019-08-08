@@ -178,7 +178,7 @@ public class Dialogue_Helper {
     //-------------------
 
     //-- Showing Experience input
-    public void askingForExperience(Activity actv, EditText edt) {
+    public void askingForExperience(Activity actv, EditText edt, Job_Seeker_Dashboard jobSeekerDashboard) {
 
 
 
@@ -211,12 +211,13 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "You have to type your Experience!", Toast.LENGTH_LONG, true).show();
-                                    askingForExperience(actv,edt);
+                                    askingForExperience(actv,edt,jobSeekerDashboard);
 
 
                                 }else {
 
                                     edt.setText(nameTemp);
+                                    jobSeekerDashboard.setExperience();
 
 
                                 }
@@ -249,7 +250,7 @@ public class Dialogue_Helper {
     //-------------------
 
     //-- Showing salary input
-    public void askingForSalary(Activity actv, EditText edt) {
+    public void askingForSalary(Activity actv, EditText edt, Job_Seeker_Dashboard jobSeekerDashboard) {
 
 
 
@@ -282,12 +283,13 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "Enter the amount of your salary!", Toast.LENGTH_LONG, true).show();
-                                    askingForExperience(actv,edt);
+                                    askingForSalary(actv,edt,jobSeekerDashboard);
 
 
                                 }else {
 
                                     edt.setText(nameTemp);
+                                    jobSeekerDashboard.setSalary();
 
 
                                 }
@@ -320,7 +322,7 @@ public class Dialogue_Helper {
     //-------------------
 
     //-- Showing current company input
-    public void askingForCurrentCompany(Activity actv, EditText edt) {
+    public void askingForCurrentCompany(Activity actv, EditText edt, Job_Seeker_Dashboard jobSeekerDashboard) {
 
 
 
@@ -353,12 +355,13 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "You have to type your current company name!", Toast.LENGTH_LONG, true).show();
-                                    askingForExperience(actv,edt);
+                                    askingForCurrentCompany(actv,edt,jobSeekerDashboard);
 
 
                                 }else {
 
                                     edt.setText(nameTemp);
+                                    jobSeekerDashboard.setCompany();
 
 
                                 }
@@ -391,7 +394,7 @@ public class Dialogue_Helper {
     //-------------------
 
     //-- Showing current designation input
-    public void askingForDesignation(Activity actv, EditText edt) {
+    public void askingForDesignation(Activity actv, EditText edt, Job_Seeker_Dashboard jobSeekerDashboard) {
 
 
 
@@ -424,12 +427,13 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "You have to type your designation!", Toast.LENGTH_LONG, true).show();
-                                    askingForExperience(actv,edt);
+                                    askingForDesignation(actv,edt,jobSeekerDashboard);
 
 
                                 }else {
 
                                     edt.setText(nameTemp);
+                                    jobSeekerDashboard.setDesignatiion();
 
 
                                 }
@@ -462,7 +466,7 @@ public class Dialogue_Helper {
     //-------------------
 
     //-- Showing prepered location input
-    public void askingForPreperedLocation(Activity actv, EditText edt) {
+    public void askingForPreperedLocation(Activity actv, EditText edt, Job_Seeker_Dashboard jobSeekerDashboard) {
 
 
 
@@ -502,12 +506,13 @@ public class Dialogue_Helper {
                                 if(nameTemp.equals("")){
 
                                     Toasty.error(actv, "Enter the location where you want the job most!", Toast.LENGTH_LONG, true).show();
-                                    askingForExperience(actv,edt);
+                                    askingForPreperedLocation(actv,edt,jobSeekerDashboard);
 
 
                                 }else {
 
                                     edt.setText(nameTemp);
+                                    jobSeekerDashboard.setLocation();
 
 
                                 }

@@ -58,7 +58,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
                         <TextView
                             android:id="@+id/textView5"
@@ -243,12 +244,12 @@
                                     android:textSize="18sp" />
 
                                 <TextView
-                                    android:id="@+id/login_helper_txt"
+                                    android:id="@+id/signup_helper_txt"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="10dp"
                                     android:gravity="center"
-                                    android:text="@string/login_now" />
+                                    android:text="@string/sign_up" />
 
 
                             </LinearLayout>

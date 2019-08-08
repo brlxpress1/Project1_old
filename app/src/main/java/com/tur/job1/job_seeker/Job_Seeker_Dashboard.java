@@ -9,9 +9,12 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +26,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,6 +35,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -40,14 +46,28 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.downloader.Error;
+import com.downloader.OnCancelListener;
+import com.downloader.OnDownloadListener;
+import com.downloader.OnPauseListener;
+import com.downloader.OnProgressListener;
+import com.downloader.OnStartOrResumeListener;
+import com.downloader.PRDownloader;
+import com.downloader.PRDownloaderConfig;
+import com.downloader.Progress;
+import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.google.gson.Gson;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.suke.widget.SwitchButton;
 import com.tur.job1.R;
+import com.tur.job1.Splash;
 import com.tur.job1.models.DateResponse;
 import com.tur.job1.models.LoginInformationResponse;
 import com.tur.job1.models.PhoneNumberCheck;
@@ -145,6 +165,9 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     ArrayList<String> tempSkillList = new ArrayList<>();
 
     private String userIdLocal = "";
+    private String cvDownloadUrl = "";
+
+    private Button cvUpdateClick;
 
 
 
@@ -193,6 +216,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         preferredInputOpener = (ImageView)findViewById(R.id.prepared_location_input);
         preferredBox = (EditText) findViewById(R.id.locationbox);
 
+        cvUpdateClick = (Button)findViewById(R.id.cv_download);
+
 
 
 
@@ -204,9 +229,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
             public void onClick(View view) {
 
                 changeProfile.startAnimation(buttonClick);
-
-                //new Profile_Image_Changer(Job_Seeker_Dashboard.this,Job_Seeker_Dashboard.this,profileImage);
                 onProfileImageClick();
+                //onProfileImageClick();
             }
         });
 
@@ -330,6 +354,30 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
             }
         });
 
+        cvUpdateClick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                cvUpdateClick.startAnimation(buttonClick);
+
+                //downloadCV(cvDownloadUrl,nameBox.getText().toString()+"_CV");
+
+                /*
+                String tempS = createDirectory(ConstantsHolder.directoryName);
+                if(tempS != null && !tempS.equalsIgnoreCase("")) {
+
+                    downloadCV(cvDownloadUrl,tempS,nameBox.getText().toString()+"_CV");
+
+                }
+                */
+
+                Intent openSecondVerifier = new Intent(Job_Seeker_Dashboard.this,Job_Seeker_CV_Upload_2.class);
+                startActivity(openSecondVerifier);
+                finish();
+
+            }
+        });
+
 
 
 
@@ -352,11 +400,6 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
             //Go to Log in
         }
-
-
-
-
-
 
 
 
@@ -412,6 +455,10 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
     }
 
     private void launchCameraIntent() {
+
+        launchGalleryIntent();
+
+/*
         Intent intent = new Intent(this, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
 
@@ -426,6 +473,7 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
 
         startActivityForResult(intent, REQUEST_IMAGE);
+        */
     }
 
     private void launchGalleryIntent() {
@@ -852,6 +900,8 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
                 // Getting the Skill Set
                 //JSONObject skillSet = jobSeekerModel.optJSONObject("skillsList");
                 //-----------
+
+                cvDownloadUrl = jobSeekerModel.optString("cvUrl");
 
 
                makeArrayAdapterFromJsonObj(jobSeekerModel);
@@ -1716,11 +1766,131 @@ public class Job_Seeker_Dashboard extends AppCompatActivity implements DatePicke
 
     }
 
+    public String createDirectory(String directoryName){
+
+        File yourAppDir = new File(Environment.getExternalStorageDirectory()+File.separator+directoryName);
+
+        String tempS = "";
+        if(!yourAppDir.exists() && !yourAppDir.isDirectory())
+        {
+            // create empty directory
+            if (yourAppDir.mkdirs())
+            {
+                Log.i("CreateDir","App dir created");
+                tempS = Environment.getExternalStorageDirectory()+File.separator+directoryName;
+            }
+            else
+            {
+                Log.w("CreateDir","Unable to create app dir!");
+            }
+        }
+        else
+        {
+            Log.i("CreateDir","App dir already exists");
+            tempS = Environment.getExternalStorageDirectory()+File.separator+directoryName;
+        }
+
+        return tempS;
 
 
+    }
+
+    private void downloadCV(String url, String directory, String filename1){
 
 
+        PRDownloader.initialize(getApplicationContext());
 
+        // Enabling database for resume support even after the application is killed:
+        PRDownloaderConfig config = PRDownloaderConfig.newBuilder()
+                .setDatabaseEnabled(true)
+                .setReadTimeout(30_000)
+                .setConnectTimeout(30_000)
+                .build();
+        PRDownloader.initialize(getApplicationContext(), config);
+
+
+        String fileName = filename1;
+        int downloadId = PRDownloader.download(url, directory, fileName)
+                .build()
+                .setOnStartOrResumeListener(new OnStartOrResumeListener() {
+                    @Override
+                    public void onStartOrResume() {
+
+                    }
+                })
+                .setOnPauseListener(new OnPauseListener() {
+                    @Override
+                    public void onPause() {
+
+                    }
+                })
+                .setOnCancelListener(new OnCancelListener() {
+                    @Override
+                    public void onCancel() {
+
+                    }
+                })
+                .setOnProgressListener(new OnProgressListener() {
+                    @Override
+                    public void onProgress(Progress progress) {
+
+                    }
+                })
+                .start(new OnDownloadListener() {
+                    @Override
+                    public void onDownloadComplete() {
+
+                    }
+
+                    @Override
+                    public void onError(Error error) {
+
+                    }
+
+
+                });
+
+    }
+
+    public void showExitDialogue(){
+
+        new MaterialStyledDialog.Builder(this)
+                .setIcon(R.drawable.logout_icon)
+                .setHeaderColor(R.color.error_red)
+                .setTitle("Log Out?")
+                .setDescription("Do you want to log out from this app?")
+
+                .setCancelable(false)
+                .setPositiveText("Log Out")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+                        editor.putString("userid", "");
+                        editor.apply();
+
+                        finish();
+                    }
+                })
+                .setNegativeText("Cancel")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+
+                    }
+                })
+                .show();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        showExitDialogue();
+
+        //super.onBackPressed();
+    }
 
     //--------------------------------------
 

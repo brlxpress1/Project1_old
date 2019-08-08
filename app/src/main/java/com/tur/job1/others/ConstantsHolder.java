@@ -14,6 +14,12 @@ public class ConstantsHolder {
     public static String updateUserEmail = "UserDetails/JobSeeker/EmailUpdate/";
     public static String updateUserBirthdate = "UserDetails/JobSeeker/BirthDayUpdate";
     public static String updateUserExperience = "UserDetails/JobSeeker/ExperinceUpdate/";
+    public static String updateUserSalary = "UserDetails/JobSeeker/ExpectedSalaryUpdate/";
+    public static String updateUserLocation = "UserDetails/JobSeeker/LocationUpdate/";
+    public static String updateUserJobHistory = "UserDetails/JobSeeker/JobHistoryUpdate/";
+    public static String updateUserSkillsSet = "UserDetails/JobSeeker/SkillUpdate";
+
+    public static String directoryName = "Project1";
 
 
 

@@ -2,7 +2,10 @@ package com.tur.job1;
 
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
@@ -21,6 +24,7 @@ public class Intro extends AppCompatActivity {
 
     private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
 
+    private String TAG = "Intro";
     private Button hire_now;
     private Button find_job;
     private boolean isConnectedToNet;
@@ -60,9 +64,10 @@ public class Intro extends AppCompatActivity {
                 if (Connectivity.isConnected(Intro.this)) {
 
 
-                    Intent openJobSeekerSignUp = new Intent(Intro.this, Job_Seeker_Dashboard.class);
+                    Intent openJobSeekerSignUp = new Intent(Intro.this, Job_Seeker_Verify_1.class);
                     startActivity(openJobSeekerSignUp);
                     finish();
+
 
                 } else {
 

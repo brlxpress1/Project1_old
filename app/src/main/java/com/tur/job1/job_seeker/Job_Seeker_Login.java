@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -27,14 +25,8 @@ import com.android.volley.toolbox.Volley;
 import com.hbb20.CountryCodePicker;
 import com.tur.job1.Intro;
 import com.tur.job1.R;
-import com.tur.job1.models.LoginInformationResponse;
-import com.tur.job1.models.PhoneNumberCheck;
-import com.tur.job1.models.SignUpResponse;
-import com.tur.job1.others.API_Retrofit;
 import com.tur.job1.others.Connectivity;
 import com.tur.job1.others.ConstantsHolder;
-import com.tur.job1.others.ServiceGenerator;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,19 +34,18 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.appcompat.app.AppCompatActivity;
 import es.dmoral.toasty.Toasty;
-import retrofit2.Call;
-import retrofit2.Callback;
 
-public class Job_Seeker_Verify_1 extends AppCompatActivity {
+public class Job_Seeker_Login extends AppCompatActivity {
 
-    private String TAG = "Job_Seeker_Verify_1";
+    private String TAG = "Job_Seeker_Login";
     private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
 
 
 
     private Button next;
-    private EditText name;
+    //private EditText name;
     private TextView countryCode;
     private EditText phone_number;
     private LinearLayout countryCodePanel;
@@ -71,7 +62,8 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
     private String userPurePhone;
 
 
-    private  TextView login_helper_txt;
+    private TextView signup_helper_txt;
+
 
 
 
@@ -82,18 +74,18 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_job_seeker_verify_1);
+        setContentView(R.layout.activity_job_seeker_login);
 
 
         next = (Button)findViewById(R.id.next_button);
-        name = (EditText)findViewById(R.id.name_input);
+        //name = (EditText)findViewById(R.id.name_input);
         countryCode = (TextView)findViewById(R.id.country_code_input);
         phone_number = (EditText)findViewById(R.id.phone_number_input);
 
         ccp = (CountryCodePicker) findViewById(R.id.ccp);
         countryCodePanel = (LinearLayout)findViewById(R.id.country_code_panel);
 
-        login_helper_txt = (TextView)findViewById(R.id.login_helper_txt);
+        signup_helper_txt = (TextView)findViewById(R.id.signup_helper_txt);
 
         //-- initial calls
 /*
@@ -109,21 +101,6 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
 
 
-        //-- Changing selection effect of input fields
-        name.setOnFocusChangeListener((view, b) -> {
-            if (view.isFocused()) {
-                // Do whatever you want when the EditText is focused
-                // Example:
-                //editTextFrom.setText("Focused!");
-                name.setBackgroundResource(R.drawable.edittext_box_border);
-            }
-            else{
-
-                name.setBackgroundResource(R.drawable.shape_with_border1);
-
-            }
-        });
-
 
 
         phone_number.setOnFocusChangeListener((view, b) -> {
@@ -138,29 +115,14 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
             }
         });
 
-        login_helper_txt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-                Intent openCVwindow = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Login.class);
-                startActivity(openCVwindow);
-                finish();
-            }
-        });
-
 
 
         //-----------------
 
 
 
-       // showLoadingBarAlert();
-        if(userName != null && !userName.equalsIgnoreCase("")){
+        // showLoadingBarAlert();
 
-            name.setText(userName);
-
-        }
 
         if(userPurePhone != null && !userPurePhone.equalsIgnoreCase("")){
 
@@ -185,26 +147,21 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
                 next.startAnimation(buttonClick);
 
                 //-- Check if user is connected with the internet
-                if (Connectivity.isConnected(Job_Seeker_Verify_1.this)) {
+                if (Connectivity.isConnected(Job_Seeker_Login.this)) {
 
 
                     //-- Check if name input field is empty
-                    String temp1 = name.getText().toString().trim();
-                    if(temp1.equalsIgnoreCase("") || temp1 == null){
 
-                        Toasty.error(Job_Seeker_Verify_1.this, "Please enter your name!", Toast.LENGTH_LONG, true).show();
-                    }
-                    else {
 
                         //-- Check if phone number input field is empty
                         String temp2 = phone_number.getText().toString().trim();
                         if(temp2.equalsIgnoreCase("") || temp2 == null){
 
-                            Toasty.error(Job_Seeker_Verify_1.this, "Please enter your phone number!", Toast.LENGTH_LONG, true).show();
+                            Toasty.error(Job_Seeker_Login.this, "Please enter your phone number!", Toast.LENGTH_LONG, true).show();
                         }else {
 
 
-                            String tempName = name.getText().toString();
+
                             //String tempPhone = ccp.getSelectedCountryCodeWithPlus()+phone_number.getText().toString().trim();
                             String tempPhone = countryCode.getText().toString().trim()+phone_number.getText().toString().trim();
 
@@ -212,36 +169,31 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
                             //showLoadingBarAlert();
                             //-- task
-                            userName = tempName;
+
                             userPhone = tempPhone;
                             userPurePhone = removePlusFromPhone(userPhone);
 
-                            SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
-                            editor.putString("username", userName);
-                            editor.putString("userphone", userPhone);
-                            editor.putString("userphonepure", userPurePhone);
 
-                            editor.apply();
 
                             /*
 
 
                              */
 
-                           // Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
-                           // startActivity(openSecondVerifier);
-                           // finish();
+                            // Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
+                            // startActivity(openSecondVerifier);
+                            // finish();
 
                             phone_number_check(removePlusFromPhone(userPhone));
                         }
 
-                    }
+
 
 
                 } else {
 
 
-                    Toasty.error(Job_Seeker_Verify_1.this, "You have no internet access! Please turn on your WiFi or mobile data.", Toast.LENGTH_LONG, true).show();
+                    Toasty.error(Job_Seeker_Login.this, "You have no internet access! Please turn on your WiFi or mobile data.", Toast.LENGTH_LONG, true).show();
 
                 }
 
@@ -266,6 +218,16 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
         });
 
+        signup_helper_txt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent openCVwindow = new Intent(Job_Seeker_Login.this,Job_Seeker_Verify_1.class);
+                startActivity(openCVwindow);
+                finish();
+            }
+        });
+
         //-----------------
 
 
@@ -274,7 +236,7 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
     private void showLoadingBarAlert(){
 
 
-        dialog = new Dialog(Job_Seeker_Verify_1.this);
+        dialog = new Dialog(Job_Seeker_Login.this);
 
         dialog.setContentView(R.layout.loading);
 
@@ -390,26 +352,45 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
                         //Log.d(TAG,respo);
 
+                        /*
 
-                        //parseFetchData(response);
+                        SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+                            editor.putString("username", userName);
+                            editor.putString("userphone", userPhone);
+                            editor.putString("userphonepure", userPurePhone);
+
+                            editor.apply();
+                         */
+
+
+                        parsePhoneCheckData(response);
+
+                        /*
                         boolean userExist = response.optBoolean("userExist");
                         if(userExist){
 
-                            Toasty.error(Job_Seeker_Verify_1.this,"This phone number already exists! Try log in now.",Toast.LENGTH_LONG, true).show();
-
-                        }else {
 
 
-                           // Toasty.error(Job_Seeker_Verify_1.this,"Can't update location! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
-                           // Log.d(TAG,"Ready to verify");
-
-                            Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
+                            Intent openSecondVerifier = new Intent(Job_Seeker_Login.this,Job_Seeker_Verify_2.class);
                             startActivity(openSecondVerifier);
                             finish();
 
-                        }
 
-                       // hideLoadingBar();
+
+
+                        }else {
+
+                            Toasty.error(Job_Seeker_Login.this,"We can't recognize this number! Try Sign Up now.",Toast.LENGTH_LONG, true).show();
+
+
+                            // Toasty.error(Job_Seeker_Verify_1.this,"Can't update location! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+                            // Log.d(TAG,"Ready to verify");
+
+
+                        }
+                        */
+
+                        // hideLoadingBar();
 
 
 
@@ -420,9 +401,9 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO: Handle error
-                        Toasty.error(Job_Seeker_Verify_1.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        Toasty.error(Job_Seeker_Login.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
                         //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
-                       // hideLoadingBar();
+                        // hideLoadingBar();
 
                     }
                 }){
@@ -445,37 +426,40 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
     }
 
     // if the signup successfull then this method will call and it store the user info in local
-    public void parsePhoneCheckData(String loginData){
-        try {
-            JSONObject jsonObject=new JSONObject(loginData);
-            String userExist =jsonObject.optString("userExist");
+    public void parsePhoneCheckData(JSONObject jobj){
+        //JSONObject jsonObject= jobj;
+        boolean userExist = jobj.optBoolean("userExist");
+        if(userExist){
+
+            JSONObject jobSeekerModel = jobj.optJSONObject("jobSeekerModel");
+            String userId = jobSeekerModel.optString("userId");
+
+            SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+            editor.putString("userid", userId);
+            editor.putString("userphone", userPhone);
+            editor.apply();
 
 
 
-            if(userExist.equalsIgnoreCase("true")){
+            Intent openSecondVerifier = new Intent(this,Job_Seeker_Login_Verify.class);
+            startActivity(openSecondVerifier);
+            finish();
 
-                Toasty.error(Job_Seeker_Verify_1.this, "This phone number already exists! Try log in now.", Toast.LENGTH_LONG, true).show();
 
 
-            }else {
 
-                //Toasty.success(Job_Seeker_Verify_1.this, "You can open a new account", Toast.LENGTH_LONG, true).show();
-                Intent openSecondVerifier = new Intent(Job_Seeker_Verify_1.this,Job_Seeker_Verify_2.class);
-                startActivity(openSecondVerifier);
-                finish();
 
-            }
+        }else {
 
-        } catch (JSONException e) {
+            Toasty.error(Job_Seeker_Login.this,"We can't recognize this number! Try Sign Up now.",Toast.LENGTH_LONG, true).show();
 
-            Toasty.error(Job_Seeker_Verify_1.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
-            e.printStackTrace();
+
         }
 
     }
 
 
-   private String removePlusFromPhone(String ph){
+    private String removePlusFromPhone(String ph){
 
         String temp = "";
 
@@ -489,7 +473,7 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
         }
 
         return  temp;
-   }
+    }
 
 
 
@@ -498,7 +482,7 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
 
 
-        Intent introOpener = new Intent(Job_Seeker_Verify_1.this,Intro.class);
+        Intent introOpener = new Intent(Job_Seeker_Login.this, Intro.class);
         startActivity(introOpener);
         finish();
 
@@ -507,3 +491,4 @@ public class Job_Seeker_Verify_1 extends AppCompatActivity {
 
 
 }
+

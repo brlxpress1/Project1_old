@@ -3,6 +3,8 @@ package com.tur.job1.others;
 
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -16,14 +18,19 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.tur.job1.Intro;
 import com.tur.job1.R;
 import com.tur.job1.adapters.SkillsSetAdapter;
 import com.tur.job1.job_seeker.Job_Seeker_Dashboard;
@@ -34,7 +41,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
 import es.dmoral.toasty.Toasty;
@@ -58,6 +67,10 @@ public class Skill_Selector extends AppCompatActivity implements AdapterView.OnI
     private int incrementor = 0;
 
     private Button saveExit;
+    JSONObject finalobject = new JSONObject();
+    ArrayList<Integer> skillIdForServer = new ArrayList<>();
+
+    private String userIdLocal = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +95,35 @@ public class Skill_Selector extends AppCompatActivity implements AdapterView.OnI
         options = Skill_Selector.this.getResources().getStringArray(R.array.Animals);
         */
 
+        saveExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int sizeOfSkillSet = selectedSkills.size();
+                if(sizeOfSkillSet <= 0){
+
+
+
+                    Toasty.error(Skill_Selector.this,"Select at least 1 skill",Toast.LENGTH_LONG, true).show();
+                }else {
+
+
+
+                        makeObjectPrimary();
+
+
+
+                }
+            }
+        });
 
 
         fetch_skill_list();
+
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        userIdLocal = prefs.getString("userid", "null");
+
+
 
     }
 
@@ -120,7 +159,7 @@ public class Skill_Selector extends AppCompatActivity implements AdapterView.OnI
 
     }
 
-    // this method will store the info of user to  database
+
     private void fetch_skill_list() {
 
         showLoadingBarAlert();
@@ -288,4 +327,204 @@ public class Skill_Selector extends AppCompatActivity implements AdapterView.OnI
 
     }
 
+    private int getID(String skillName){
+
+        int temp = 0;
+        for(int i=0; i<skillNameList.size(); i++){
+
+            if(skillNameList.get(i).equalsIgnoreCase(skillName)){
+
+                temp = Integer.parseInt(skillIdList.get(i));
+                break;
+            }
+        }
+        return temp;
+    }
+
+    public void makeObjectPrimary(){
+
+        //skillIdForServer.clear();
+
+        if(skillIdForServer.size() > 0){
+            skillIdForServer.clear();
+        }
+        for(int i=0; i<selectedSkills.size(); i++){
+
+            int temp = getID(selectedSkills.get(i));
+            skillIdForServer.add(temp);
+        }
+
+        UpdateUserSkill(Integer.parseInt(userIdLocal),skillIdForServer);
+
+    }
+
+
+    public void makJsonObject()
+            throws JSONException {
+
+        //--
+/*
+        for(int i=0; i<selectedSkills.size(); i++){
+
+            int temp = getID(selectedSkills.get(i));
+            Log.d(TAG,temp + "                  "+selectedSkills.get(i));
+        }
+        */
+
+
+        //-------------
+        JSONObject obj = null;
+        JSONArray jsonArray = new JSONArray();
+        for (int i = 0; i < selectedSkills.size(); i++) {
+            obj = new JSONObject();
+            int temp = getID(selectedSkills.get(i));
+            try {
+                //obj.put("id", temp);
+                //obj.put("skillId", selectedSkills.get(i));
+
+                obj.put("id", "");
+                obj.put("skillId", temp);
+
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            jsonArray.put(obj);
+        }
+
+       // JSONObject jobject = jsonArray.toJSONObject(jsonArray);
+
+        Log.d(TAG,jsonArray.toString());
+
+        JSONObject finalobject = new JSONObject();
+        finalobject.put("data", jsonArray);
+        //return finalobject;
+        //return jsonArray;
+
+        //UpdateUserSkill(1,finalobject);
+    }
+
+    // Update skill
+    private void UpdateUserSkill(int userID,ArrayList<Integer> skillId) {
+
+        showLoadingBarAlert();
+
+        JSONObject parameters = new JSONObject();
+        try {
+
+
+
+
+
+
+            parameters.put("userrId", userID);
+            parameters.put("skillId", skillId);
+
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG,parameters.toString());
+        Log.d(TAG,returnPureStringObject(parameters.toString()));
+
+        try {
+            finalobject = new JSONObject(returnPureStringObject(parameters.toString()));
+            Log.d(TAG,finalobject.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, ConstantsHolder.rawServer+ConstantsHolder.updateUserSkillsSet, finalobject, new com.android.volley.Response.Listener<JSONObject>() {
+
+
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String respo=response.toString();
+                        Log.d(TAG,respo);
+
+                        int status = response.optInt("status");
+
+                        if(status == 200){
+
+                            Toasty.success(Skill_Selector.this,"Skills updated successfully!",Toast.LENGTH_LONG, true).show();
+
+                            Intent openJobSeekerSignUp = new Intent(Skill_Selector.this, Job_Seeker_Dashboard.class);
+                            startActivity(openJobSeekerSignUp);
+                            finish();
+
+                        }else {
+
+                            Toasty.error(Skill_Selector.this,"Can't update Birth-date! Please check your internet connection & try again.",Toast.LENGTH_LONG, true).show();
+
+                        }
+
+                        hideLoadingBar();
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toasty.error(Skill_Selector.this, "Server error,please check your internet connection!", Toast.LENGTH_LONG, true).show();
+                        //Toast.makeText(Login_A.this, "Something wrong with Api", Toast.LENGTH_SHORT).show();
+                        hideLoadingBar();
+
+                    }
+                }){
+
+
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Content-Type", "application/json");
+                //headers.put("apiKey", "xxxxxxxxxxxxxxx");
+                return headers;
+            }
+        };
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.getCache().clear();
+        rq.add(jsonObjectRequest);
+
+
+
+        //-----------------
+
+    }
+
+    private String returnPureStringObject(String st){
+
+        String temp =  "";
+        String part = ":"+"\"";
+        String part2 = "]"+"\"";
+
+        temp = st.replaceAll(part,":");
+        temp =  temp.replaceAll(part2,"]");
+
+        return temp;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Intent openJobSeekerSignUp = new Intent(Skill_Selector.this, Job_Seeker_Dashboard.class);
+        startActivity(openJobSeekerSignUp);
+        finish();
+
+
+    }
 }
